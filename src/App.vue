@@ -41,13 +41,13 @@
         </v-btn>
       </router-link>
 
-      <router-link to="/">
+      <router-link to="/home">
         <v-btn text>
           <v-icon size="x-large">mdi-home</v-icon>
         </v-btn>
       </router-link>
 
-      <router-link to="/login">
+      <router-link to="/">
         <v-btn text>
           <span class="mr-2">Cerrar sesión</span>
         </v-btn>

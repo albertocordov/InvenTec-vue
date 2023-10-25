@@ -140,7 +140,7 @@ export default {
             const auth = getAuth();
             signInWithEmailAndPassword(auth, v.email, v.password).then(
                 () => {
-                    this.$router.replace("/");
+                    this.$router.replace("/home");
                     v.xhrRequest = false;
 
                     const Toast = Swal.mixin({

@@ -1,32 +1,74 @@
 <template>
-  <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view/>
-  </div>
+  <v-app>
+    <v-app-bar app color="primary" dark>
+      <div class="d-flex align-center">
+        <v-img alt="Vuetify Logo" class="shrink mr-2" contain
+          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
+
+        <v-img alt="Vuetify Name" class="shrink mt-1 hidden-sm-and-down" contain min-width="100"
+          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png" width="100" />
+      </div>
+
+      <v-spacer></v-spacer>
+
+      <router-link to="/users">
+        <v-btn text>
+          <span class="mr-2">Usuarios</span>
+        </v-btn>
+      </router-link>
+
+      <router-link to="/inventory">
+        <v-btn text>
+          <span class="mr-2">Inventarios</span>
+        </v-btn>
+      </router-link>
+
+      <router-link to="/departments">
+        <v-btn text>
+          <span class="mr-2">Departamentos</span>
+        </v-btn>
+      </router-link>
+
+      <router-link to="/reports">
+        <v-btn text>
+          <span class="mr-2">Reportes</span>
+        </v-btn>
+      </router-link>
+
+      <router-link to="/valesResguardo">
+        <v-btn text>
+          <span class="mr-2">Vales de resguardo</span>
+        </v-btn>
+      </router-link>
+
+      <router-link to="/">
+        <v-btn text>
+          <v-icon size="x-large">mdi-home</v-icon>
+        </v-btn>
+      </router-link>
+
+      <router-link to="/login">
+        <v-btn text>
+          <span class="mr-2">Cerrar sesión</span>
+        </v-btn>
+      </router-link>
+
+    </v-app-bar>
+
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import router from './router';
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+export default {
+  name: 'App',
+  data: () => ({
+    //
+  }),
+  components: { router }
+};
+</script>

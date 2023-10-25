@@ -1,31 +1,124 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import login from '../views/login.vue'
+import users from '../views/users.vue'
+import inventory from '../views/inventory.vue'
+import departments from '../views/departments.vue'
+import reports from '../views/reports.vue'
+import valesResguardo from '../views/valesResguardo.vue'
+import Swal from "sweetalert2";
+import { getAuth, signOut } from "firebase/auth";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: function () {
-      return import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/login',
+    name: 'login',
+    component: login
+  },
+  {
+    path: '/users',
+    name: 'users',
+    component: users,
+    meta: {
+      requiresAuth: true
     }
-  }
+  },
+  {
+    path: '/inventory',
+    name: 'inventory',
+    component: inventory,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/departments',
+    name: 'departments',
+    component: departments,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/reports',
+    name: 'reports',
+    component: reports,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/valesResguardo',
+    name: 'valesResguardo',
+    component: valesResguardo,
+    meta: {
+      requiresAuth: true
+    }
+  },
 ]
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
-})
+});
 
-export default router
+// Middleware para verificar la autenticación y cerrar la sesión
+router.beforeEach(async (to, from, next) => {
+  const auth = getAuth();
+
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    // La ruta requiere autenticación
+    if (!auth.currentUser) {
+      // El usuario no está autenticado
+      alertaToast("warning", "Debes iniciar sesión.");
+      next({ name: 'login' });
+    } else {
+      // El usuario está autenticado
+      next();
+    }
+  } else if (to.name === 'login' && from.name !== 'login') {
+    // El usuario está yendo a la vista de inicio de sesión desde otra vista
+    // Cerrar la sesión
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error al cerrar la sesión:", error);
+    }
+    next();
+  } else {
+    next();
+  }
+});
+
+const alertaToast = (icono, titulo) => {
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: toast => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    }
+  });
+
+  Toast.fire({
+    icon: icono,
+    title: titulo
+  });
+};
+
+export default router;

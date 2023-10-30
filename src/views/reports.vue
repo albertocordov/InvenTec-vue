@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center">
+  <div class="text-center entrar">
     <h1>Reportes</h1>
     <!-- Primer Row: Títulos 1 y 2 -->
     <v-row align="center" justify="center">
@@ -95,4 +95,19 @@ export default {
   text-align: center;
   margin: 10px;
 }
+
+.entrar {
+    animation: entrada 0.7s ease;
+}
+
+@keyframes entrada {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 100%;
+    }
+}
+
 </style>

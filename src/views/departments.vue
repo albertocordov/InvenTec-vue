@@ -5,7 +5,7 @@
             <div class="col-md-6">
                 <!-- Sección de departamentos -->
                 <h2 class="text-center">Departamentos</h2>
-                <v-btn @click="showAddDepartmentModal = true" class="mb-3 green" dark>
+                <v-btn block @click="showAddDepartmentModal = true" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar departamento
                 </v-btn>
                 <v-text-field v-model="searchDepartment" label="Buscar departamento" append-icon="mdi-magnify"
@@ -31,7 +31,7 @@
             <div class="col-md-6">
                 <!-- Sección de jefes de departamento -->
                 <h2 class="text-center">Jefes de departamento / área</h2>
-                <v-btn @click="showAddManagerModal = true" class="mb-3 green" dark>
+                <v-btn block @click="showAddManagerModal = true" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar jefe
                 </v-btn>
                 <v-text-field v-model="searchManager" label="Buscar jefe de departamento / área" append-icon="mdi-magnify"
@@ -206,6 +206,12 @@ export default {
 </script>
   
 <style>
+
+.btnagregar{
+margin-top: 15px;
+
+}
+
 .entrar {
     animation: entrada 0.7s ease;
 }

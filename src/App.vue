@@ -36,6 +36,7 @@ export default {
       drawer: true,
       inicioSesion: false,
       menuItems: [
+        { title: 'Inicio', icon: 'mdi-home', value: '/home' },
         { title: 'Usuarios', icon: 'mdi-account', value: '/users' },
         { title: 'Inventarios', icon: 'mdi-archive', value: '/inventory' },
         { title: 'Departamentos', icon: 'mdi-account-multiple', value: '/departments' },

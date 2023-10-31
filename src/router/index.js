@@ -15,16 +15,16 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
+    name: 'login',
+    component: login
+  },
+  {
+    path: '/home',
     name: 'home',
     component: HomeView,
     meta: {
       requiresAuth: true
     }
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: login
   },
   {
     path: '/users',
@@ -105,7 +105,7 @@ router.beforeEach(async (to, from, next) => {
 const alertaToast = (icono, titulo) => {
   const Toast = Swal.mixin({
     toast: true,
-    position: "top-end",
+    position: "top-start",
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,

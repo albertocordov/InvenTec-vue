@@ -1,5 +1,5 @@
 <template>
-    <div class="container mt-2">
+    <div class="container mt-2 entrar">
         <h1 class="text-center">Departamentos</h1>
         <div class="row mb-3">
             <div class="col-md-6">
@@ -205,3 +205,20 @@ export default {
 };
 </script>
   
+<style>
+.entrar {
+    animation: entrada 0.7s ease;
+}
+
+@keyframes entrada {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 100%;
+    }
+}
+
+
+</style>

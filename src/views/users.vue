@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="entrar">
         <div class="container mt-2">
             <h1 class="text-center">Usuarios</h1>
             <v-dialog v-model="mostrarFormulario" max-width="500">
@@ -171,3 +171,19 @@ export default {
 };
 </script>
   
+<style>
+.entrar {
+    animation: entrada 0.7s ease;
+}
+
+@keyframes entrada {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 100%;
+    }
+}
+
+</style>

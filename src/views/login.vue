@@ -1,103 +1,75 @@
 <template>
-    <div class="row">
-        <div class="col-12 text-center mb-4">
-            <h1>Iniciar sesión</h1>
-        </div>
-        <div class="col-sm-5 m-auto">
-            <div
-                v-if="errorMessage !== ''"
-                class="alert alert-danger"
-                role="alert"
-            >
-                {{ errorMessage }}
+    <div class="login-container">
+        <div class="login-content">
+            <div class="col-12 text-center mb-4">
+                <h1>Iniciar sesión</h1>
             </div>
-            <div
-                v-if="successMessage !== ''"
-                class="alert alert-success"
-                role="alert"
-            >
-                {{ successMessage }}
-            </div>
-            <form @submit.prevent="loginRequest" id="login-form">
-                <div class="row text-left">
-                    <div class="col-sm-12 form-group">
-                        <label for="email">Correo electrónico</label>
-                        <input
-                            type="email"
-                            v-model="email"
-                            id="email"
-                            class="form-control form-control-lg"
-                        />
-                    </div>
-                    <div class="col-sm-12 form-group">
-                        <label for="password">Contraseña</label>
-                        <input
-                            type="password"
-                            v-model="password"
-                            id="password"
-                            class="form-control form-control-lg"
-                        />
-                    </div>
-                    <div class="col-sm-12 text-center form-group">
-                        <button
-                            v-bind:disabled="xhrRequest"
-                            v-bind:class="{ disabled: xhrRequest }"
-                            class="btn btn-lg btn-primary px-4"
-                        >
-                            <span v-if="!xhrRequest">Iniciar sesión</span>
-                            <span v-if="xhrRequest">Por favor espere...</span>
-                        </button>
-                        <div
-                            v-if="xhrRequest"
-                            class="spinner-border text-secondary loader"
-                            role="status"
-                        >
-                            <span class="sr-only">Cargando...</span>
+            <div class="col-sm-5 m-auto">
+                <div v-if="errorMessage !== ''" class="alert alert-danger" role="alert">
+                    {{ errorMessage }}
+                </div>
+                <div v-if="successMessage !== ''" class="alert alert-success" role="alert">
+                    {{ successMessage }}
+                </div>
+                <form @submit.prevent="loginRequest" id="login-form">
+                    <div class="row text-left">
+                        <div class="col-sm-12 form-group">
+                            <v-text-field color="primary" label="Correo Electronico" variant="outlined" type="email"
+                                v-model="email" id="email"></v-text-field>
+                        </div>
+                        <div class=" col-sm-12 form-group">
+                            <v-text-field color="primary" label="Contraseña" variant="outlined" type="password"
+                                v-model="password" id="password" hint="Ingrese su Contraseña"></v-text-field>
+                        </div>
+                        <div class="col-sm-12 text-center form-group">
+                            <button v-bind:disabled="xhrRequest" v-bind:class="{ disabled: xhrRequest }"
+                                class="btn btn-lg btn-primary px-4">
+                                <span v-if="!xhrRequest">Iniciar sesión</span>
+                                <span v-if="xhrRequest">Por favor espere...</span>
+                            </button>
+                            <div v-if="xhrRequest" class="spinner-border text-secondary loader" role="status">
+                                <span class="sr-only">Cargando...</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
-            <div class="col-sm-12 text-center form-group mt-5">
-                <p>¿Olvidaste tu contraseña?</p>
-                <!--Boton-->
-                <div class="boton-modal">
-                    <label for="btn-modal">
-                        Recuperar
-                    </label>
-                </div>
-                <!--Fin de Boton-->
+                </form>
+                <v-divider :thickness="4" class="border-opacity-100"></v-divider>
+                <div class="col-sm-12 text-center form-group mt-5">
+                    <p>¿Olvidaste tu contraseña?</p>
+                    <!--Boton-->
+                    <div class="boton-modal">
+                        <label for="btn-modal">
+                            Recuperar
+                        </label>
+                    </div>
+                    <!--Fin de Boton-->
 
-                <!--Ventana Modal-->
-                <input type="checkbox" id="btn-modal" />
-                <div class="container-modal">
-                    <form @submit.prevent="cambiarContraseña" id="login-form-recuperar">
-                        <div class="content-modal">
-                            <h2>Recuperar contraseña</h2>
-                            <div class="col-sm-14 form-group">
-                                <label for="email">Correo electrónico</label>
-                                <input
-                                    type="email"
-                                    v-model="email_recuperar"
-                                    id="email_recuperar"
-                                    class="form-control form-control-lg"
-                                />
-                            </div>
-                            <div class="btn-cerrar">
-                                <!-- <div class="btn-cerrar">
+                    <!--Ventana Modal-->
+                    <input type="checkbox" id="btn-modal" />
+                    <div class="container-modal">
+                        <form @submit.prevent="cambiarContraseña" id="login-form-recuperar">
+                            <div class="content-modal">
+                                <h2>Recuperar contraseña</h2>
+                                <div class="col-sm-14 form-group">
+                                    <label for="email">Correo electrónico</label>
+                                    <input type="email" v-model="email_recuperar" id="email_recuperar"
+                                        class="form-control form-control-lg" />
+                                </div>
+                                <div class="btn-cerrar">
+                                    <!-- <div class="btn-cerrar">
                                     <label @click="cambiarContraseña" for="btn-modal">Enviar</label>
                                 </div> -->
-                                <button onclick="cambiarContraseña()"
-                                    for="btn-modal"
-                                    class="btn btn-lg btn-primary px-4"
-                                >
-                                    <span>Recuperar</span>
-                                </button>
+                                    <button onclick="cambiarContraseña()" for="btn-modal"
+                                        class="btn btn-lg btn-primary px-4">
+                                        <span>Recuperar</span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <label for="btn-modal" class="cerrar-modal"></label>
-                    </form>
+                            <label for="btn-modal" class="cerrar-modal"></label>
+                        </form>
+                    </div>
+                    <!--Fin de Ventana Modal-->
                 </div>
-                <!--Fin de Ventana Modal-->
             </div>
         </div>
     </div>
@@ -119,7 +91,7 @@ export default {
             xhrRequest: false,
             errorMessage: "",
             successMessage: "",
-            email_recuperar: "" 
+            email_recuperar: ""
 
         };
     },
@@ -140,12 +112,12 @@ export default {
             const auth = getAuth();
             signInWithEmailAndPassword(auth, v.email, v.password).then(
                 () => {
-                    this.$router.replace("/");
+                    this.$router.replace("/home");
                     v.xhrRequest = false;
 
                     const Toast = Swal.mixin({
                         toast: true,
-                        position: "top-end",
+                        position: "top-start",
                         showConfirmButton: false,
                         timer: 2000,
                         timerProgressBar: true,
@@ -228,7 +200,7 @@ export default {
                 .then(() => {
                     const Toast = Swal.mixin({
                         toast: true,
-                        position: "top-end",
+                        position: "top-start",
                         showConfirmButton: false,
                         timer: 5000,
                         timerProgressBar: true,
@@ -263,14 +235,32 @@ export default {
     }
 };
 </script>
+
 <style scoped>
+.login-container {
+    background: linear-gradient(to bottom, #d64ff7, #4a43df);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
 .loader {
     position: relative;
     top: 6px;
     left: 10px;
 }
 
-.row {
+.login-content {
+    align-content: center;
+    align-items: center;
+    background-color: #fff;
+    width: 600px;
+    height: 655px;
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     animation: entrada 0.7s ease;
 }
 
@@ -303,7 +293,7 @@ export default {
     z-index: 100;
 }
 
-#btn-modal:checked ~ .container-modal {
+#btn-modal:checked~.container-modal {
     display: flex;
 }
 

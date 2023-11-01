@@ -47,7 +47,7 @@
                     <!--Ventana Modal-->
                     <input type="checkbox" id="btn-modal" />
                     <div class="container-modal">
-                        <form @submit.prevent="cambiarContraseña" id="login-form-recuperar">
+                        <form @submit.prevent="cambiarContrasena" id="login-form-recuperar">
                             <div class="content-modal">
                                 <h2>Recuperar contraseña</h2>
                                 <div class="col-sm-14 form-group">
@@ -59,7 +59,7 @@
                                     <!-- <div class="btn-cerrar">
                                     <label @click="cambiarContraseña" for="btn-modal">Enviar</label>
                                 </div> -->
-                                    <button onclick="cambiarContraseña()" for="btn-modal"
+                                    <button for="btn-modal"
                                         class="btn btn-lg btn-primary px-4">
                                         <span>Recuperar</span>
                                     </button>
@@ -188,7 +188,7 @@ export default {
                 }
             );
         },
-        cambiarContraseña() {
+        cambiarContrasena() {
             let v = this;
             if (!v.email_recuperar) {
                 alert("Por favor, ingrese su correo electrónico.");

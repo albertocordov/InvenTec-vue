@@ -121,6 +121,7 @@ export default {
         theme: "grid"
       });
       doc.save("informe.pdf");
+
       
     }
   }

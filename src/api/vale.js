@@ -1,63 +1,3 @@
-<template>
-  <v-container fluid>
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>
-            <h3>VALE ÚNICO DE RESGUARDO DE BIENES MUEBLES</h3>
-          </v-card-title>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                  label="UNIDAD RESPONSABLE"
-                  v-model="unidadResponsable"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="FECHA"
-                  v-model="fecha"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="ÁREA"
-                  v-model="area"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="CENTRO DE TRABAJO"
-                  v-model="centroTrabajo"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="DATOS DEL SERVIDOR PÚBLICO"
-                  v-model="datosServidorPublico"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-data-table
-                  :items="bienesAsignados"
-                  :headers="headers"
-                  class="elevation-1"
-                ></v-data-table>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12">
-                <v-btn color="primary" @click="imprimirPDF">Imprimir</v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
-</template>
-<script>
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -125,4 +65,3 @@ export default {
     }
   }
 };
-</script>

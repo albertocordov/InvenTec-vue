@@ -120,7 +120,6 @@ export default {
         startY: 110,
         theme: "grid"
       });
-
       doc.save("informe.pdf");
     }
   }

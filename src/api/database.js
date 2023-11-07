@@ -16,6 +16,7 @@ const config = {
   },
 };
 
+// Llena dataTable de activos en vista inventory
 app.get('/api/inventory', async (req, res) => {
   try {
     const pool = await sql.connect(config);
@@ -39,6 +40,7 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
+// Llena dataTable de departamentos en vista departments
 app.get('/api/departments', async (req, res) => {
   try {
     const pool = await sql.connect(config);
@@ -56,6 +58,35 @@ app.get('/api/departments', async (req, res) => {
     res.status(500).send(`Error en el servidor: ${error.message}`);
   }
 });
+
+// Trae los departamentos para el comboBox  
+app.get('/api/combo/departments', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .query(`SELECT depclave, depdepto FROM departamentos;`);
+    res.json(result.recordset);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error en el servidor: ${error.message}`);
+  }
+});
+
+// Trae las áreas para el comboBox  
+app.get('/api/combo/areas', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .query(`SELECT areaid, areanombre, depclave FROM areas;`);
+    res.json(result.recordset);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error en el servidor: ${error.message}`);
+  }
+});
+
 
 const port = 3000; // El puerto en el que se ejecutará el servidor
 app.listen(port, () => {

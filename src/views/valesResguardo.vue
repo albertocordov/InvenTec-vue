@@ -91,6 +91,7 @@ export default {
         bienesAsignados: this.bienesAsignados,
       };
 
+      
       const doc = new jsPDF();
 
       doc.text("SEP", 105, 20, "center");
@@ -101,7 +102,7 @@ export default {
       doc.text("Centro de trabajo: " + data.centroTrabajo, 20, 90);
       doc.text("Datos del servidor público: " + data.datosServidorPublico, 20, 100);
     
-      // Agrega más datos al documento PDF si es necesario
+     
       doc.text("Otro dato: Otro valor", 20, 110);
 
       // Guarda o muestra el PDF según tus necesidades

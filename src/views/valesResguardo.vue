@@ -57,14 +57,11 @@
     </v-row>
   </v-container>
 </template>
+
 <script>
-const express = require('express');
-const app = express();
-const port = 3000;
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import jsPDF from 'jspdf';
+
 export default {
-  name: "ValeResguardoBienes",
   data() {
     return {
       unidadResponsable: "",
@@ -72,22 +69,18 @@ export default {
       area: "",
       centroTrabajo: "",
       datosServidorPublico: "",
-      bienesAsignados: [
-        {
-          cant: 1,
-          caracteristica: {
-            noInventario: 1,
-            marca: "",
-            nombre: "",
-            modelo: "",
-            serie: ""
-          },
-          usuario: ""
-        }
-      ]
+      bienesAsignados: [],
+      headers: [
+        "Cantidad",
+        "Característica",
+        "Usuario",
+      ],
     };
   },
   methods: {
+    getBienesAsignados() {
+      return this.bienesAsignados;
+    },
     imprimirPDF() {
       const data = {
         unidadResponsable: this.unidadResponsable,
@@ -95,7 +88,7 @@ export default {
         area: this.area,
         centroTrabajo: this.centroTrabajo,
         datosServidorPublico: this.datosServidorPublico,
-        bienesAsignados: this.bienesAsignados
+        bienesAsignados: this.bienesAsignados,
       };
 
       const doc = new jsPDF();
@@ -107,21 +100,15 @@ export default {
       doc.text("Área: " + data.area, 20, 80);
       doc.text("Centro de trabajo: " + data.centroTrabajo, 20, 90);
       doc.text("Datos del servidor público: " + data.datosServidorPublico, 20, 100);
+    
+      // Agrega más datos al documento PDF si es necesario
+      doc.text("Otro dato: Otro valor", 20, 110);
 
-      const rows = data.bienesAsignados.map(bien => [
-        bien.cant,
-        `${bien.caracteristica.noInventario}, ${bien.caracteristica.marca}, ${bien.caracteristica.nombre}, ${bien.caracteristica.modelo}, ${bien.caracteristica.serie}`,
-        bien.usuario
-      ]);
-
-      doc.autoTable({
-        head: [["Cant.", "Característica", "Usuario"]],
-        body: rows,
-        startY: 110,
-        theme: "grid"
-      });
-      doc.save("informe.pdf");
-    }
-  }
+      // Guarda o muestra el PDF según tus necesidades
+      doc.save("Vale_de_Resguardo.pdf"); // Guarda el PDF con un nombre específico
+      // Opción para mostrar el PDF en una nueva ventana
+      
+    },
+  },
 };
 </script>

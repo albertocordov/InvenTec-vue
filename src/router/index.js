@@ -12,6 +12,7 @@ import { getAuth, signOut } from "firebase/auth";
 
 Vue.use(VueRouter);
 
+
 const routes = [
   {
     path: '/',
@@ -120,5 +121,6 @@ const alertaToast = (icono, titulo) => {
     title: titulo
   });
 };
+
 
 export default router;

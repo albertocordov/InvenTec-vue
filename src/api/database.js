@@ -40,6 +40,45 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
+// Inserta un nuevo activo en la base de datos
+app.post('/api/inventory/registra', async (req, res) => {
+  const nuevoActivo = req.body;
+
+  console.log('Nuevo activo recibido:', nuevoActivo);
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('ActIdSep', sql.VarChar, nuevoActivo.idSep)
+      .input('ActNoInv', sql.VarChar, nuevoActivo.noInv)
+      .input('ActNombre', sql.NVarChar, nuevoActivo.nombre)
+      .input('ActCaracteristicas', sql.NVarChar, nuevoActivo.caracteristicas)
+      .input('ActMarca', sql.NVarChar, nuevoActivo.marca)
+      .input('ActModelo', sql.NVarChar, nuevoActivo.modelo)
+      .input('ActSerie', sql.NVarChar, nuevoActivo.serie)
+      .input('ActValor', sql.Decimal, nuevoActivo.valor)
+      .input('ActCabm', sql.NVarChar, nuevoActivo.camb)
+      .input('depclave', sql.Int, nuevoActivo.departamento)
+      .input('AreaId', sql.Int, nuevoActivo.area)
+      .input('ActObser', sql.NVarChar, nuevoActivo.observaciones)
+      .query(`
+        INSERT INTO Activos (ActIdSep, ActNoInv, ActNombre, ActCaracteristicas, ActMarca, ActModelo, ActSerie,
+        ActValor, ActCabm, depclave, AreaId, ActObser)
+        VALUES (@ActIdSep, @ActNoInv, @ActNombre, @ActCaracteristicas, @ActMarca, @ActModelo, @ActSerie,
+        @ActValor, @ActCabm, @depclave, @AreaId, @ActObser);
+      `);
+
+    console.log('Resultado de la inserción:', result);
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    console.error('Error al registrar el activo:', error);
+    res.status(500).send(`Error al registrar el activo: ${error.message}`);
+  }
+});
+
 // Llena dataTable de departamentos en vista departments
 app.get('/api/departments', async (req, res) => {
   try {

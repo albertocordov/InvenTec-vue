@@ -13,9 +13,9 @@
                 <v-data-table :headers="departmentHeaders" :items="filteredDepartments" class="elevation-1">
                     <template v-slot:item="{ item }">
                         <tr>
-                            <td>{{ item.id }}</td>
-                            <td>{{ item.departamento }}</td>
-                            <td>{{ item.encargado }}</td>
+                            <td>{{ item.ID }}</td>
+                            <td>{{ item.Departamento }}</td>
+                            <td>{{ item.NombreEncargado }}</td>
                             <td>
                                 <v-btn @click="editarDepartamento(item.id)" class="ma-1 orange darken-1" fab dark small>
                                     <v-icon>mdi-pencil</v-icon>
@@ -48,6 +48,35 @@
                                     <v-icon>mdi-pencil</v-icon>
                                 </v-btn>
                                 <v-btn @click="eliminarJefe(item.id)" class="ma-1 red" fab dark small>
+                                    <v-icon>mdi-delete</v-icon>
+                                </v-btn>
+                            </td>
+                        </tr>
+                    </template>
+                </v-data-table>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h2 class="text-center">Áreas</h2>
+                <v-btn block @click="showAddAreaModal = true" class="mb-3 green btnagregar" dark>
+                    <v-icon>mdi-plus</v-icon> Agregar área
+                </v-btn>
+                <v-text-field v-model="searchArea" label="Buscar área" append-icon="mdi-magnify"
+                    class="mb-3"></v-text-field>
+                <v-data-table :headers="areaHeaders" :items="filteredAreas" class="elevation-1">
+                    <template v-slot:item="{ item }">
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.departamento }}</td>
+                            <td>{{ item.nombre }}</td>
+                            <td>{{ item.encargado }}</td>
+                            <td>
+                                <v-btn @click="editarArea(item.id)" class="ma-1 orange darken-1" fab dark small>
+                                    <v-icon>mdi-pencil</v-icon>
+                                </v-btn>
+                                <v-btn @click="eliminarArea(item.id)" class="ma-1 red" fab dark small>
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </td>
@@ -95,17 +124,39 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <!-- Modal para agregar áreas -->
+        <v-dialog v-model="showAddAreaModal" max-width="500">
+            <v-card>
+                <v-card-title>
+                    Agregar Área
+                </v-card-title>
+                <v-card-text>
+                    <v-autocomplete v-model="newArea.department" :items="departmentOptions"
+                        label="Seleccionar Departamento"></v-autocomplete>
+                    <v-autocomplete v-model="newArea.manager" :items="managerOptions"
+                        label="Seleccionar Encargado del Área"></v-autocomplete>
+                    <v-text-field v-model="newArea.name" label="Nombre del Área"></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn color="blue darken-1" @click="agregarArea">Agregar</v-btn>
+                    <v-btn color="red darken-1" @click="showAddAreaModal = false">Cancelar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
-  
+
 <script>
+import axios from 'axios';
+
 export default {
     name: 'departments',
     data: () => ({
         departmentHeaders: [
-            { text: 'ID', value: 'id' },
-            { text: 'Departamento', value: 'departamento' },
-            { text: 'Encargado', value: 'encargado' },
+            { text: 'ID', value: 'ID' },
+            { text: 'Departamento', value: 'Departamento' },
+            { text: 'Encargado', value: 'NombreEncargado' },
             { text: 'Acciones', value: 'actions' },
         ],
         managerHeaders: [
@@ -115,11 +166,19 @@ export default {
             { text: 'Rol', value: 'role' },
             { text: 'Acciones', value: 'actions' },
         ],
-        departmentOptions: [],
+        areaHeaders: [
+            { text: 'ID', value: 'id' },
+            { text: 'Área', value: 'nombre' },
+            { text: 'Encargado área', value: 'encargado' },
+            { text: 'Encargado depto', value: 'encargado' },
+            { text: 'Acciones', value: 'actions' },
+        ],
         searchDepartment: '',
         searchManager: '',
+        searchArea: '',
         showAddDepartmentModal: false,
         showAddManagerModal: false,
+        showAddAreaModal: false,
         newDepartment: {
             name: '',
             alias: '',
@@ -129,45 +188,43 @@ export default {
             department: '',
             role: 'Jefe de Departamento',
         },
-        departments: [
-            { id: 1, departamento: 'Departamento 1', encargado: 'Encargado 1' },
-            { id: 2, departamento: 'Departamento 2', encargado: 'Encargado 2' },
-            { id: 3, departamento: 'Departamento 3', encargado: 'Encargado 3' },
-            { id: 4, departamento: 'Departamento 4', encargado: 'Encargado 4' },
-            { id: 5, departamento: 'Departamento 5', encargado: 'Encargado 5' },
-            { id: 6, departamento: 'Departamento 6', encargado: 'Encargado 6' },
-            { id: 7, departamento: 'Departamento 7', encargado: 'Encargado 7' },
-            { id: 8, departamento: 'Departamento 8', encargado: 'Encargado 8' },
-            { id: 9, departamento: 'Departamento 9', encargado: 'Encargado 9' },
-            { id: 10, departamento: 'Departamento 10', encargado: 'Encargado 10' },
-        ],
-        managers: [
-            { id: 1, nombre: 'Jefe 1', departamento: 'Departamento 1', role: 'Jefe de depto' },
-            { id: 2, nombre: 'Jefe 2', departamento: 'Departamento 2', role: 'Jefe de depto' },
-            { id: 3, nombre: 'Jefe 3', departamento: 'Departamento 3', role: 'Jefe de depto' },
-            { id: 4, nombre: 'Jefe 4', departamento: 'Departamento 4', role: 'Jefe de depto' },
-            { id: 5, nombre: 'Jefe 5', departamento: 'Departamento 5', role: 'Jefe de depto' },
-            { id: 6, nombre: 'Jefe 6', departamento: 'Departamento 6', role: 'Jefe de Área' },
-            { id: 7, nombre: 'Jefe 7', departamento: 'Departamento 7', role: 'Jefe de Área' },
-            { id: 8, nombre: 'Jefe 8', departamento: 'Departamento 8', role: 'Jefe de Área' },
-            { id: 9, nombre: 'Jefe 9', departamento: 'Departamento 9', role: 'Jefe de Área' },
-            { id: 10, nombre: 'Jefe 10', departamento: 'Departamento 10', role: 'Jefe de Área' },
-        ],
-        newDepartment: { // Almacena los datos del nuevo departamento
+        newArea: {
             name: '',
-            alias: '',
+            department: '',
+            manager: '',
         },
+        departments: [],
+        managers: [
+            { id: 1, nombre: 'Jefe 1', departamento: 'Departamento 1', role: 'Jefe de Departamento' },
+            // Agregar más jefes de departamento según sea necesario
+        ],
+        areas: [
+            { id: 1, departamento: 'Departamento 1', nombre: 'Área 1', encargado: 'Jefe 1' },
+            // Agregar más áreas según sea necesario
+        ],
+        managerOptions: [],
+        departmentOptions: [],
     }),
-    components: {},
     computed: {
         filteredDepartments() {
-            return this.departments.filter((department) =>
-                department.departamento.toLowerCase().includes(this.searchDepartment.toLowerCase())
-            );
+            return this.departments.filter((department) => {
+                const searchTerm = this.searchDepartment.toLowerCase();
+                for (const key in department) {
+                    if (department[key] && department[key].toString().toLowerCase().includes(searchTerm)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
         },
         filteredManagers() {
             return this.managers.filter((manager) =>
                 manager.nombre.toLowerCase().includes(this.searchManager.toLowerCase())
+            );
+        },
+        filteredAreas() {
+            return this.areas.filter((area) =>
+                area.nombre.toLowerCase().includes(this.searchArea.toLowerCase())
             );
         },
     },
@@ -200,15 +257,39 @@ export default {
             this.newManager.role = 'Jefe de Departamento';
             this.showAddManagerModal = false;
         },
+        agregarArea() {
+            // Agregar lógica para guardar la nueva área en tu lista de áreas
+            this.areas.push({
+                id: this.areas.length + 1,
+                departamento: this.newArea.department,
+                nombre: this.newArea.name,
+                encargado: this.newArea.manager,
+            });
+
+            // Reiniciar los datos del nuevo área y ocultar el modal
+            this.newArea.name = '';
+            this.newArea.department = '';
+            this.newArea.manager = '';
+            this.showAddAreaModal = false;
+        },
         // Agrega tus métodos para editar y eliminar departamentos y jefes de departamento según tus necesidades
+    },
+    created() {
+        axios.get('http://localhost:3000/api/departments')
+            .then(response => {
+                console.log(response.data)
+                this.departments = response.data;
+            })
+            .catch(error => {
+                console.error('Error al cargar el inventario', error);
+            });
     },
 };
 </script>
   
 <style>
-
-.btnagregar{
-margin-top: 15px;
+.btnagregar {
+    margin-top: 15px;
 
 }
 
@@ -225,6 +306,4 @@ margin-top: 15px;
         opacity: 100%;
     }
 }
-
-
 </style>

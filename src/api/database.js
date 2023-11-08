@@ -79,6 +79,87 @@ app.post('/api/inventory/registra', async (req, res) => {
   }
 });
 
+// Consulta datos de un activo por su ActId
+app.get('/api/inventory/:ActId', async (req, res) => {
+  const { ActId } = req.params; // Obtener el ActId de los parámetros de la URL
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('ActId', sql.Int, ActId)
+      .query(`
+        SELECT 
+            ActIdSep,
+            ActNoInv,
+            ActNombre,
+            ActCaracteristicas,
+            ActMarca,
+            ActModelo,
+            ActSerie,
+            ActValor,
+            ActCabm,
+            depclave,
+            AreaId,
+            ActObser
+        FROM Activos
+        WHERE ActId = @ActId;
+      `);
+
+    res.json(result.recordset);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error en el servidor: ${error.message}`);
+  }
+});
+
+// Actualiza el activo seleccionado
+app.put('/api/inventory/actualizar/:ActId', async (req, res) => {
+  const { ActId } = req.params; // Obtener el ID del activo de los parámetros de la URL
+  const nuevoActivo = req.body;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('ActIdSep', sql.VarChar, nuevoActivo.idSep)
+      .input('ActNoInv', sql.VarChar, nuevoActivo.noInv)
+      .input('ActNombre', sql.NVarChar, nuevoActivo.nombre)
+      .input('ActCaracteristicas', sql.NVarChar, nuevoActivo.caracteristicas)
+      .input('ActMarca', sql.NVarChar, nuevoActivo.marca)
+      .input('ActModelo', sql.NVarChar, nuevoActivo.modelo)
+      .input('ActSerie', sql.NVarChar, nuevoActivo.serie)
+      .input('ActValor', sql.Decimal, nuevoActivo.valor)
+      .input('ActCabm', sql.NVarChar, nuevoActivo.camb)
+      .input('depclave', sql.Int, nuevoActivo.departamento)
+      .input('AreaId', sql.Int, nuevoActivo.area)
+      .input('ActObser', sql.NVarChar, nuevoActivo.observaciones)
+      .input('ActId', sql.Int, ActId)
+      .query(`
+        UPDATE Activos
+        SET
+          ActIdSep = @ActIdSep,
+          ActNoInv = @ActNoInv,
+          ActNombre = @ActNombre,
+          ActCaracteristicas = @ActCaracteristicas,
+          ActMarca = @ActMarca,
+          ActModelo = @ActModelo,
+          ActSerie = @ActSerie,
+          ActValor = @ActValor,
+          ActCabm = @ActCabm,
+          depclave = @depclave,
+          AreaId = @AreaId,
+          ActObser = @ActObser
+        WHERE ActId = @ActId;
+      `);
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al actualizar el activo: ${error.message}`);
+  }
+});
+
 // Llena dataTable de departamentos en vista departments
 app.get('/api/departments', async (req, res) => {
   try {

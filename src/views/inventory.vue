@@ -4,13 +4,13 @@
       <h1 class="text-center">Inventario de activo fijo</h1>
       <v-dialog v-model="mostrarFormulario" max-width="500">
         <template v-slot:activator="{ on }">
-          <v-btn @click="mostrarFormulario = true" class="mb-3 green" dark>
+          <v-btn @click="registraActivo" class="mb-3 green" dark>
             <v-icon>mdi-plus</v-icon> Agregar activo
           </v-btn>
         </template>
         <v-card>
           <v-card-title>
-            Registrar activo
+            {{ edicionActiva ? 'Editar activo' : 'Registrar activo' }}
           </v-card-title>
           <v-card-text>
             <v-text-field v-model="nuevoUsuario.idSep" label="ID SEP" outlined></v-text-field>
@@ -27,13 +27,15 @@
             <v-text-field v-model="nuevoUsuario.camb" label="Camb" outlined></v-text-field>
             <v-select v-model="nuevoUsuario.departamento" :items="departamentos" label="Departamento*" outlined
               :error="nuevoUsuarioErrores.departamento" item-text="depdepto" item-value="depclave"></v-select>
-            <v-select v-model="nuevoUsuario.area" :items="areas" label="Área*" outlined :error="nuevoUsuarioErrores.area" item-text="areanombre"
-              item-value="areaid"></v-select>
+            <v-select v-model="nuevoUsuario.area" :items="areas" label="Área*" outlined :error="nuevoUsuarioErrores.area"
+              item-text="areanombre" item-value="areaid"></v-select>
             <v-textarea v-model="nuevoUsuario.observaciones" label="Observaciones" outlined></v-textarea>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="green" @click="registrarNuevoUsuario">Registrar</v-btn>
-            <v-btn @click="mostrarFormulario = false">Cancelar</v-btn>
+            <v-btn color="green" @click="edicionActiva ? guardarCambios() : registrarNuevoUsuario()">
+              {{ edicionActiva ? 'Guardar cambios' : 'Registrar' }}
+            </v-btn>
+            <v-btn @click="cancelarEdicion()">Cancelar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -61,6 +63,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 
@@ -68,19 +71,19 @@ export default {
   data: () => ({
     mostrarFormulario: false,
     nuevoUsuario: {
-      ActId: '',          // Cambiado de 'id' a 'ActId'
+      ActId: '',         
       idSep: '',
       noInv: '',
-      nombre: '',       // Cambiado de 'nombre' a 'ActNombre'
+      nombre: '',       
       caracteristicas: '',
-      marca: '',           // Cambiado de 'email' a 'marca'
-      modelo: '',          // Cambiado de 'esAdmin' a 'modelo'
-      serie: '',           // Cambiado de 'departamento' a 'serie'
-      valor: '',           // Cambiado de 'jefeArea' a 'valor'
-      camb: '',            // Cambiado de 'jefeDepto' a 'camb'
-      departamento: '',    // Cambiado de 'observaciones' a 'departamento'
+      marca: '',           
+      modelo: '',          
+      serie: '',           
+      valor: '',          
+      camb: '',           
+      departamento: '',    
       area: '',
-      observaciones: '',         
+      observaciones: '',
     },
     nuevoUsuarioErrores: {
       nombre: false,
@@ -100,12 +103,21 @@ export default {
       { text: 'Opciones', value: 'opciones' },
     ],
     inventario: [],
+    edicionActiva: false,
+    idActivoAEditar: null,
   }),
   computed: {
+    // Búsqueda de activos por todas sus columnas.
     filteredUsuarios() {
-      return this.inventario.filter(usuario =>
-        usuario.ActNombre.toLowerCase().includes(this.search.toLowerCase())
-      );
+      return this.inventario.filter((usuario) => {
+        const searchTerm = this.search.toLowerCase();
+        for (const key in usuario) {
+          if (usuario[key] && usuario[key].toString().toLowerCase().includes(searchTerm)) {
+            return true;
+          }
+        }
+        return false;
+      });
     },
   },
   created() {
@@ -119,7 +131,7 @@ export default {
         console.error('Error al cargar la lista de áreas', error);
       });
 
-    // Obtener la lista de departamentos al cargar la página
+    // Obtener la lista de departamentos
     axios.get('http://localhost:3000/api/combo/departments')
       .then(response => {
         this.departamentos = response.data;
@@ -128,6 +140,7 @@ export default {
         console.error('Error al cargar la lista de departamentos', error);
       });
 
+    // Obtener la lista de activos
     axios.get('http://localhost:3000/api/inventory')
       .then(response => {
         this.inventario = response.data;
@@ -137,13 +150,110 @@ export default {
       });
   },
   methods: {
+    cargarDatosActivoPorId(ActId) {
+      axios
+        .get(`http://localhost:3000/api/inventory/${ActId}`)
+        .then((response) => {
+          console.log('Datos del activo:', response.data);
+
+          // Asigna los datos del activo a la variable 'nuevoUsuario'
+          // Asigna los datos del activo a las propiedades correspondientes del objeto 'nuevoUsuario'
+          this.nuevoUsuario.idSep = response.data[0].ActIdSep;
+          this.nuevoUsuario.noInv = response.data[0].ActNoInv;
+          this.nuevoUsuario.nombre = response.data[0].ActNombre;
+          this.nuevoUsuario.caracteristicas = response.data[0].ActCaracteristicas;
+          this.nuevoUsuario.marca = response.data[0].ActMarca;
+          this.nuevoUsuario.modelo = response.data[0].ActModelo;
+          this.nuevoUsuario.serie = response.data[0].ActSerie;
+          this.nuevoUsuario.valor = response.data[0].ActValor;
+          this.nuevoUsuario.camb = response.data[0].ActCabm;
+          this.nuevoUsuario.departamento = response.data[0].depclave;
+          this.nuevoUsuario.area = response.data[0].AreaId;
+          this.nuevoUsuario.observaciones = response.data[0].ActObser;
+
+          // Activa el modo de edición y muestra el formulario
+          this.edicionActiva = true;
+          this.mostrarFormulario = true;
+        })
+        .catch((error) => {
+          console.error('Error al cargar los datos del activo:', error);
+        });
+    },
+    guardarCambios() {
+      axios
+        .put(`http://localhost:3000/api/inventory/actualizar/${this.idActivoAEditar}`, this.nuevoUsuario)
+        .then((response) => {
+          console.log('Activo actualizado con éxito:', response.data);
+          // Actualiza el activo en la lista
+          const index = this.inventario.findIndex((item) => item.ActId === this.idActivoAEditar);
+          if (index !== -1) {
+            this.inventario[index] = this.nuevoUsuario;
+          }
+          this.cancelarEdicion(); // Restablece el formulario
+        })
+        .catch((error) => {
+          console.error('Error al actualizar el activo:', error);
+        });
+    },
+    cancelarEdicion() {
+      this.edicionActiva = false;
+      this.idActivoAEditar = null;
+
+      this.nuevoUsuario = {
+        idSep: '',
+        noInv: '',
+        nombre: '',
+        caracteristicas: '',
+        marca: '',
+        modelo: '',
+        serie: '',
+        valor: '',
+        camb: '',
+        departamento: '',
+        area: '',
+        observaciones: '',
+      };
+
+      this.nuevoUsuarioErrores = {
+        nombre: false,
+        caracteristicas: false,
+        departamento: false,
+        valor: false,
+      };
+
+      this.mostrarFormulario = false;
+    },
+    registraActivo() {
+      this.nuevoUsuario = {
+        idSep: '',
+        noInv: '',
+        nombre: '',
+        caracteristicas: '',
+        marca: '',
+        modelo: '',
+        serie: '',
+        valor: '',
+        camb: '',
+        departamento: '',
+        area: '',
+        observaciones: '',
+      };
+
+      this.edicionActiva = false;
+      this.mostrarFormulario = true;
+    },
     editarUsuario(id) {
-      console.log('Editar usuario con ID:', id);
+      this.cargarDatosActivoPorId(id);
+
+      this.edicionActiva = id !== null;
+      this.idActivoAEditar = id;
+      this.mostrarFormulario = true;
     },
     eliminarUsuario(id) {
       console.log('Eliminar usuario con ID:', id);
     },
     registrarNuevoUsuario() {
+      // Reestablece los errores del formulario
       this.nuevoUsuarioErrores = {
         nombre: false,
         caracteristicas: false,
@@ -154,7 +264,7 @@ export default {
 
       // Verifica que los campos requeridos tengan información
       if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.caracteristicas || !this.nuevoUsuario.departamento || !this.nuevoUsuario.area) {
-        
+
         // Establece errores en los campos requeridos
         if (!this.nuevoUsuario.nombre) {
           this.nuevoUsuarioErrores.nombre = true;
@@ -171,11 +281,13 @@ export default {
         return;
       }
 
-      // Valida que el campo 'valor' sea un número.
-      const valor = parseFloat(this.nuevoUsuario.valor);
-      if (isNaN(valor)) {
-        this.nuevoUsuarioErrores.valor = true;
-        return; 
+      // Valida que el campo 'valor' sea un número, no es obligatorio que tenga un valor.
+      if (this.nuevoUsuario.valor) {
+        const valor = parseFloat(this.nuevoUsuario.valor);
+        if (isNaN(valor)) {
+          this.nuevoUsuarioErrores.valor = true;
+          return;
+        }
       }
 
       axios

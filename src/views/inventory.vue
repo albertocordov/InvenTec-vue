@@ -3,11 +3,15 @@
     <div class="container mt-2">
       <h1 class="text-center">Inventario de activo fijo</h1>
       <v-dialog v-model="mostrarFormulario" max-width="500">
+
+        <!-- Botón para mostrar el formulario de registro de un nuevo activo -->
         <template v-slot:activator="{ on }">
           <v-btn @click="registraActivo" class="mb-3 green" dark>
             <v-icon>mdi-plus</v-icon> Agregar activo
           </v-btn>
         </template>
+
+        <!-- Modal para agregar/editar un activo -->
         <v-card>
           <v-card-title>
             {{ edicionActiva ? 'Editar activo' : 'Registrar activo' }}
@@ -39,8 +43,25 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-text-field v-model="search" label="Buscar activo" append-icon="mdi-magnify" class="mb-3"></v-text-field>
 
+      <!-- Modal para confirmar la eliminación de un activo -->
+      <v-dialog v-model="mostrarConfirmacionEliminar" max-width="400">
+        <v-card>
+          <v-card-title class="headline">Confirmar eliminación</v-card-title>
+          <v-card-text>
+            <div v-if="activoAEliminar">
+            ¿Estás seguro de que deseas eliminar el activo con el nombre "{{ activoAEliminar.ActNombre }}"?
+          </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="cancelarEliminacion">Cancelar</v-btn>
+            <v-btn @click="eliminarActivo" color="red" dark>Eliminar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- DataTable de activos -->
+      <v-text-field v-model="search" label="Buscar activo" append-icon="mdi-magnify" class="mb-3"></v-text-field>
       <v-data-table :headers="headers" :items="filteredUsuarios" class="elevation-1">
         <template v-slot:item="{ item }">
           <tr>
@@ -71,17 +92,17 @@ export default {
   data: () => ({
     mostrarFormulario: false,
     nuevoUsuario: {
-      ActId: '',         
+      ActId: '',
       idSep: '',
       noInv: '',
-      nombre: '',       
+      nombre: '',
       caracteristicas: '',
-      marca: '',           
-      modelo: '',          
-      serie: '',           
-      valor: '',          
-      camb: '',           
-      departamento: '',    
+      marca: '',
+      modelo: '',
+      serie: '',
+      valor: '',
+      camb: '',
+      departamento: '',
       area: '',
       observaciones: '',
     },
@@ -105,6 +126,8 @@ export default {
     inventario: [],
     edicionActiva: false,
     idActivoAEditar: null,
+    mostrarConfirmacionEliminar: false,
+    activoAEliminar: null,
   }),
   computed: {
     // Búsqueda de activos por todas sus columnas.
@@ -150,14 +173,22 @@ export default {
       });
   },
   methods: {
+    cargarDatosTabla() {
+      axios
+        .get('http://localhost:3000/api/inventory')
+        .then((response) => {
+          this.inventario = response.data;
+        })
+        .catch((error) => {
+          console.error('Error al cargar el inventario', error);
+        });
+    },
     cargarDatosActivoPorId(ActId) {
       axios
         .get(`http://localhost:3000/api/inventory/${ActId}`)
         .then((response) => {
-          console.log('Datos del activo:', response.data);
 
-          // Asigna los datos del activo a la variable 'nuevoUsuario'
-          // Asigna los datos del activo a las propiedades correspondientes del objeto 'nuevoUsuario'
+          // Carga los datos del activo en el formulario
           this.nuevoUsuario.idSep = response.data[0].ActIdSep;
           this.nuevoUsuario.noInv = response.data[0].ActNoInv;
           this.nuevoUsuario.nombre = response.data[0].ActNombre;
@@ -189,7 +220,9 @@ export default {
           if (index !== -1) {
             this.inventario[index] = this.nuevoUsuario;
           }
-          this.cancelarEdicion(); // Restablece el formulario
+          this.cargarDatosTabla();
+          // Restablece el formulario
+          this.cancelarEdicion();
         })
         .catch((error) => {
           console.error('Error al actualizar el activo:', error);
@@ -250,7 +283,34 @@ export default {
       this.mostrarFormulario = true;
     },
     eliminarUsuario(id) {
-      console.log('Eliminar usuario con ID:', id);
+      // Obtén el activo a eliminar por su ActId
+      const activoAEliminar = this.inventario.find((activo) => activo.ActId === id);
+      if (activoAEliminar) {
+        this.activoAEliminar = activoAEliminar;
+        this.mostrarConfirmacionEliminar = true; // Muestra el cuadro de diálogo de confirmación
+      }
+    },
+    cancelarEliminacion() {
+      this.activoAEliminar = null;
+      this.mostrarConfirmacionEliminar = false; // Oculta el cuadro de diálogo de confirmación
+    },
+    eliminarActivo() {
+      if (this.activoAEliminar) {
+        axios
+          .delete(`http://localhost:3000/api/inventory/eliminar/${this.activoAEliminar.ActId}`)
+          .then((response) => {
+            console.log(`Activo eliminado con éxito. ActId: ${this.activoAEliminar.ActId}`);
+            // Elimina el activo de la lista
+            const index = this.inventario.findIndex((item) => item.ActId === this.activoAEliminar.ActId);
+            if (index !== -1) {
+              this.inventario.splice(index, 1);
+            }
+            this.mostrarConfirmacionEliminar = false; 
+          })
+          .catch((error) => {
+            console.error('Error al eliminar el activo:', error);
+          });
+      }
     },
     registrarNuevoUsuario() {
       // Reestablece los errores del formulario
@@ -294,7 +354,7 @@ export default {
         .post('http://localhost:3000/api/inventory/registra', this.nuevoUsuario)
         .then((response) => {
           console.log('Activo registrado con éxito:', response.data);
-          //this.inventario.push(this.nuevoUsuario);
+          this.inventario.push(this.nuevoUsuario);
           this.nuevoUsuario = {
             idSep: '',
             noInv: '',
@@ -310,6 +370,7 @@ export default {
             observaciones: '',
             idSep: '',
           };
+          this.cargarDatosTabla();
           this.mostrarFormulario = false;
         })
         .catch((error) => {

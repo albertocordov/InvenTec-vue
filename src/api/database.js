@@ -81,7 +81,7 @@ app.post('/api/inventory/registra', async (req, res) => {
 
 // Consulta datos de un activo por su ActId
 app.get('/api/inventory/:ActId', async (req, res) => {
-  const { ActId } = req.params; // Obtener el ActId de los parámetros de la URL
+  const { ActId } = req.params;
 
   try {
     const pool = await sql.connect(config);
@@ -115,7 +115,7 @@ app.get('/api/inventory/:ActId', async (req, res) => {
 
 // Actualiza el activo seleccionado
 app.put('/api/inventory/actualizar/:ActId', async (req, res) => {
-  const { ActId } = req.params; // Obtener el ID del activo de los parámetros de la URL
+  const { ActId } = req.params; 
   const nuevoActivo = req.body;
 
   try {
@@ -157,6 +157,26 @@ app.put('/api/inventory/actualizar/:ActId', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send(`Error al actualizar el activo: ${error.message}`);
+  }
+});
+
+// Elimina activos por su ActId
+app.delete('/api/inventory/eliminar/:ActId', async (req, res) => {
+  const { ActId } = req.params; 
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('ActId', sql.Int, ActId)
+      .query('DELETE FROM Activos WHERE ActId = @ActId');
+
+    console.log(`Activo eliminado con éxito. ActId: ${ActId}`);
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al eliminar el activo: ${error.message}`);
   }
 });
 

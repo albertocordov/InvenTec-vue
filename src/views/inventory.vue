@@ -50,8 +50,8 @@
           <v-card-title class="headline">Confirmar eliminación</v-card-title>
           <v-card-text>
             <div v-if="activoAEliminar">
-            ¿Estás seguro de que deseas eliminar el activo con el nombre "{{ activoAEliminar.ActNombre }}"?
-          </div>
+              ¿Estás seguro de que deseas eliminar el activo con el nombre "{{ activoAEliminar.ActNombre }}"?
+            </div>
           </v-card-text>
           <v-card-actions>
             <v-btn @click="cancelarEliminacion">Cancelar</v-btn>
@@ -90,7 +90,23 @@ import axios from 'axios';
 
 export default {
   data: () => ({
+    headers: [
+      { text: 'PROG', value: 'ActId' },
+      { text: 'Nombre', value: 'ActNombre' },
+      { text: 'Características', value: 'ActCaracteristicas' },
+      { text: 'Jefe depto', value: 'JefeDepartamento' },
+      { text: 'Departamento', value: 'NombreDepartamento' },
+      { text: 'Opciones', value: 'opciones' },
+    ],
+    inventario: [],
+    departamentos: [],
+    areas: [],
+    search: '',
     mostrarFormulario: false,
+    edicionActiva: false,
+    idActivoAEditar: null,
+    mostrarConfirmacionEliminar: false,
+    activoAEliminar: null,
     nuevoUsuario: {
       ActId: '',
       idSep: '',
@@ -112,22 +128,6 @@ export default {
       departamento: false,
       valor: false,
     },
-    departamentos: [],
-    areas: [],
-    search: '',
-    headers: [
-      { text: 'PROG', value: 'ActId' },
-      { text: 'Nombre', value: 'ActNombre' },
-      { text: 'Características', value: 'ActCaracteristicas' },
-      { text: 'Jefe depto', value: 'JefeDepartamento' },
-      { text: 'Departamento', value: 'NombreDepartamento' },
-      { text: 'Opciones', value: 'opciones' },
-    ],
-    inventario: [],
-    edicionActiva: false,
-    idActivoAEditar: null,
-    mostrarConfirmacionEliminar: false,
-    activoAEliminar: null,
   }),
   computed: {
     // Búsqueda de activos por todas sus columnas.
@@ -144,6 +144,7 @@ export default {
     },
   },
   created() {
+
     // Obtener la lista de todas las áreas
     axios.get('http://localhost:3000/api/combo/areas')
       .then(response => {
@@ -173,6 +174,8 @@ export default {
       });
   },
   methods: {
+
+    // Carga los datos de los activos
     cargarDatosTabla() {
       axios
         .get('http://localhost:3000/api/inventory')
@@ -183,6 +186,8 @@ export default {
           console.error('Error al cargar el inventario', error);
         });
     },
+
+    // Consulta activo por su ActId
     cargarDatosActivoPorId(ActId) {
       axios
         .get(`http://localhost:3000/api/inventory/${ActId}`)
@@ -210,6 +215,7 @@ export default {
           console.error('Error al cargar los datos del activo:', error);
         });
     },
+    // Actualiza los datos de un activo
     guardarCambios() {
       axios
         .put(`http://localhost:3000/api/inventory/actualizar/${this.idActivoAEditar}`, this.nuevoUsuario)
@@ -221,7 +227,6 @@ export default {
             this.inventario[index] = this.nuevoUsuario;
           }
           this.cargarDatosTabla();
-          // Restablece el formulario
           this.cancelarEdicion();
         })
         .catch((error) => {
@@ -305,7 +310,7 @@ export default {
             if (index !== -1) {
               this.inventario.splice(index, 1);
             }
-            this.mostrarConfirmacionEliminar = false; 
+            this.mostrarConfirmacionEliminar = false;
           })
           .catch((error) => {
             console.error('Error al eliminar el activo:', error);
@@ -342,12 +347,14 @@ export default {
       }
 
       // Valida que el campo 'valor' sea un número, no es obligatorio que tenga un valor.
-      if (this.nuevoUsuario.valor) {
+      if (this.nuevoUsuario.valor) { 
         const valor = parseFloat(this.nuevoUsuario.valor);
         if (isNaN(valor)) {
           this.nuevoUsuarioErrores.valor = true;
           return;
         }
+      } else {
+        this.nuevoUsuario.valor = 0;
       }
 
       axios

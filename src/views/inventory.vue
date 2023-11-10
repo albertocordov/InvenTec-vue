@@ -31,7 +31,7 @@
             <v-text-field v-model="nuevoUsuario.camb" label="Camb" outlined></v-text-field>
             <v-select v-model="nuevoUsuario.departamento" :items="departamentos" label="Departamento*" outlined
               :error="nuevoUsuarioErrores.departamento" item-text="depdepto" item-value="depclave"></v-select>
-            <v-select v-model="nuevoUsuario.area" :items="areas" label="Área*" outlined :error="nuevoUsuarioErrores.area"
+            <v-select v-model="nuevoUsuario.area" :items="areasPorDepartamento" label="Área*" outlined :error="nuevoUsuarioErrores.area"
               item-text="areanombre" item-value="areaid"></v-select>
             <v-textarea v-model="nuevoUsuario.observaciones" label="Observaciones" outlined></v-textarea>
           </v-card-text>
@@ -101,6 +101,7 @@ export default {
     inventario: [],
     departamentos: [],
     areas: [],
+    areasPorDepartamento: [],
     search: '',
     mostrarFormulario: false,
     edicionActiva: false,
@@ -129,6 +130,9 @@ export default {
       valor: false,
     },
   }),
+  watch: {
+    'nuevoUsuario.departamento': 'actualizarAreas',
+  },
   computed: {
     // Búsqueda de activos por todas sus columnas.
     filteredUsuarios() {
@@ -214,6 +218,22 @@ export default {
         .catch((error) => {
           console.error('Error al cargar los datos del activo:', error);
         });
+    },
+    actualizarAreas() {
+      if (this.nuevoUsuario.departamento) {
+        // Filtra las áreas según el departamento seleccionado
+        this.areasPorDepartamento = this.areas.filter(
+          (area) => area.depclave === this.nuevoUsuario.departamento
+        );
+        // Restablece el valor del área si ya no es válido
+        if (!this.areasPorDepartamento.find((a) => a.areaid === this.nuevoUsuario.area)) {
+          this.nuevoUsuario.area = '';
+        }
+      } else {
+        // Si no se ha seleccionado un departamento, reinicia las áreas
+        this.areasPorDepartamento = [];
+        this.nuevoUsuario.area = '';
+      }
     },
     // Actualiza los datos de un activo
     guardarCambios() {
@@ -347,7 +367,7 @@ export default {
       }
 
       // Valida que el campo 'valor' sea un número, no es obligatorio que tenga un valor.
-      if (this.nuevoUsuario.valor) { 
+      if (this.nuevoUsuario.valor) {
         const valor = parseFloat(this.nuevoUsuario.valor);
         if (isNaN(valor)) {
           this.nuevoUsuarioErrores.valor = true;

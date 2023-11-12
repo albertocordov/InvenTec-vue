@@ -28,36 +28,51 @@
             <v-data-table :headers="headers" :items="filteredUsuarios" class="elevation-1">
                 <template v-slot:item="{ item }">
                     <tr>
-                        <td>{{ item.id }}</td>
-                        <td>{{ item.nombre }}</td>
-                        <td>{{ item.email }}</td>
+                        <td>{{ item.UsrId }}</td>
+                        <td>{{ item.UsrNombre }}</td>
+                        <td>{{ item.UsrCorreo }}</td>
                         <td>
-                            <v-switch v-model="item.esAdmin"></v-switch>
-                            <!-- Switch de Vuetify en la columna "Administrador" -->
+                            <v-switch v-model="item.UsrTipo" @change="actualizarTipoUsuario(item)"></v-switch>
                         </td>
                         <td>
-                            <v-btn @click="editarUsuario(item.id)" class="ma-1 orange darken-1" fab dark small>
-                                <v-icon>mdi-pencil</v-icon>
-                            </v-btn>
-                            <v-btn @click="eliminarUsuario(item.id)" class="ma-1 red" fab dark small>
+                            <v-btn @click="mostrarConfirmacionEliminar = true; usuarioAEliminar = item" class="ma-1 red" fab
+                                dark small>
                                 <v-icon>mdi-delete</v-icon>
                             </v-btn>
                         </td>
                     </tr>
                 </template>
             </v-data-table>
+            <v-dialog v-model="mostrarConfirmacionEliminar" max-width="400">
+                <v-card>
+                    <v-card-title class="headline">Confirmar eliminación</v-card-title>
+                    <v-card-text>
+                        <div v-if="usuarioAEliminar">
+                            ¿Estás seguro de que deseas eliminar al usuario "{{ usuarioAEliminar.UsrNombre }}"?
+                        </div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="cancelarEliminacion">Cancelar</v-btn>
+                        <v-btn @click="eliminarUsuario" color="red" dark>Eliminar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </div>
     </div>
 </template>
   
 <script>
+import axios from 'axios';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import Swal from "sweetalert2";
 
 export default {
     data: () => ({
         mostrarFormulario: false,
+        mostrarConfirmacionEliminar: false,
+        usuarioAEliminar: null,
         nuevoUsuario: {
+            idUser: '',
             nombre: '',
             email: '',
             esAdmin: false,
@@ -78,30 +93,75 @@ export default {
     }),
     computed: {
         filteredUsuarios() {
-            return this.usuarios.filter((usuario) =>
-                usuario.nombre.toLowerCase().includes(this.search.toLowerCase())
-            );
+            return this.usuarios.filter((usuario) => {
+                const searchTerm = this.search.toLowerCase();
+                for (const key in usuario) {
+                    if (usuario[key] && usuario[key].toString().toLowerCase().includes(searchTerm)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
         },
     },
+    created() {
+        axios.get('http://localhost:3000/api/users')
+            .then(response => {
+                this.usuarios = response.data;
+            })
+            .catch(error => {
+                console.error('Error al cargar el inventario', error);
+            });
+    },
     methods: {
-        editarUsuario(id) {
-            // Lógica para editar el usuario con el ID proporcionado
-            console.log('Editar usuario con ID:', id);
+        cancelarEliminacion() {
+            this.mostrarConfirmacionEliminar = false;
+            this.usuarioAEliminar = null;
         },
-        eliminarUsuario(id) {
-            // Lógica para eliminar el usuario con el ID proporcionado
-            console.log('Eliminar usuario con ID:', id);
+        eliminarUsuario() {
+            const userId = this.usuarioAEliminar.UsrId;
+
+            axios.delete(`http://localhost:3000/api/users/eliminarUsuario/${userId}`)
+                .then((response) => {
+                    console.log('Usuario eliminado con éxito:', response.data);
+                    this.cargarDatosTabla();
+                    this.mostrarConfirmacionEliminar = false;
+                    this.showToast("success", "Usuario eliminado con éxito.");
+                })
+                .catch((error) => {
+                    console.error('Error al eliminar usuario:', error);
+                    this.mostrarConfirmacionEliminar = false;
+                    this.showToast("error", "Error al eliminar usuario.");
+                });
         },
+        actualizarTipoUsuario(usuario) {
+            axios
+                .put(`http://localhost:3000/api/users/actualizaTipoUsuario/${usuario.UsrId}`, {
+                    UsrTipo: usuario.UsrTipo
+                })
+                .then(response => {
+                    console.log('Tipo de usuario actualizado con éxito en la base de datos:', response.data);
+                })
+                .catch(error => {
+                    console.error('Error al actualizar el tipo de usuario en la base de datos:', error);
+                });
+        },
+        cargarDatosTabla() {
+            axios
+                .get('http://localhost:3000/api/users')
+                .then((response) => {
+                    this.usuarios = response.data;
+                })
+                .catch((error) => {
+                    console.error('Error al cargar usuarios', error);
+                });
+        },
+
         agregarElemento() {
             // Validar el correo electrónico si es necesario
             const correoElectronico = this.nuevoUsuario.email;
             const contraseñaPorDefecto = "123456789";
 
-            // Aquí puedes agregar la lógica para registrar el usuario en Firebase
-            // Utiliza 'correoElectronico' y 'contraseñaPorDefecto'
-
-            // Luego, cierra el modal
-            // Registrar el usuario en Firebase
             const auth = getAuth();
             createUserWithEmailAndPassword(
                 auth,
@@ -115,14 +175,23 @@ export default {
 
                     // Aquí puedes realizar otras acciones después del registro
                     // Por ejemplo, agregar el usuario a tu base de datos o actualizar la interfaz de usuario.
-
-                    // Agregar el usuario a tu lista de usuarios
-                    this.usuarios.push({
-                        id: this.usuarios.length + 1,
-                        nombre: this.nuevoUsuario.nombre,
-                        email: user.email,
-                        esAdmin: this.nuevoUsuario.esAdmin,
-                    });
+                    console.log("Agregando usuario a la base de datos SQL Server...");
+                    axios
+                        .post('http://localhost:3000/api/users/registraUsuario', this.nuevoUsuario)
+                        .then((response) => {
+                            console.log('Usuario registrado en SQL con éxito:', response.data);
+                            this.nuevoUsuario = {
+                                nombre: '',
+                                email: '',
+                                esAdmin: '',
+                            };
+                            this.cargarDatosTabla();
+                            this.mostrarFormulario = false;
+                        })
+                        .catch((error) => {
+                            console.log('Error al registrar el usuario en SQL:', error);
+                            console.error('Error al registrar el usuario en SQL:', error);
+                        });
 
                     // Restablece los campos del formulario
                     this.nuevoUsuario = { nombre: '', email: '', esAdmin: false };
@@ -142,7 +211,7 @@ export default {
                         default:
                             this.showToast(
                                 "error",
-                                "Ocurrió un error al registrar el usuario."
+                                "Ocurrió un error al registrar el usuario." + error
                             );
                             break;
                     }
@@ -185,5 +254,4 @@ export default {
         opacity: 100%;
     }
 }
-
 </style>

@@ -196,7 +196,7 @@ export default {
       axios
         .get(`http://localhost:3000/api/inventory/${ActId}`)
         .then((response) => {
-
+          
           // Carga los datos del activo en el formulario
           this.nuevoUsuario.idSep = response.data[0].ActIdSep;
           this.nuevoUsuario.noInv = response.data[0].ActNoInv;

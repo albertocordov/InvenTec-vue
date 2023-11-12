@@ -3,18 +3,24 @@
         <div class="container mt-2">
             <h1 class="text-center">Usuarios</h1>
             <v-dialog v-model="mostrarFormulario" max-width="500">
+
+                <!-- Botón para habilitar modal de registro de usuario -->
                 <template v-slot:activator="{ on }">
                     <v-btn @click="mostrarFormulario = true" class="mb-3 green" dark>
                         <v-icon>mdi-plus</v-icon> Agregar Usuario
                     </v-btn>
                 </template>
+
+                <!-- Modal para registrar a un usuario -->
                 <v-card>
                     <v-card-title>
                         Registrar usuario
                     </v-card-title>
                     <v-card-text>
-                        <v-text-field v-model="nuevoUsuario.nombre" label="Nombre" outlined></v-text-field>
-                        <v-text-field v-model="nuevoUsuario.email" label="Correo Electrónico" outlined></v-text-field>
+                        <v-text-field v-model="nuevoUsuario.nombre" label="Nombre*" outlined
+                            :error="nuevoUsuarioErrores.nombre"></v-text-field>
+                        <v-text-field v-model="nuevoUsuario.email" label="Correo Electrónico*" outlined
+                            :error="nuevoUsuarioErrores.email"></v-text-field>
                         <v-switch v-model="nuevoUsuario.esAdmin" label="Administrador"></v-switch>
                     </v-card-text>
                     <v-card-actions>
@@ -25,6 +31,7 @@
             </v-dialog>
             <v-text-field v-model="search" label="Buscar usuario" append-icon="mdi-magnify" class="mb-3"></v-text-field>
 
+            <!-- DataTable de usuarios -->
             <v-data-table :headers="headers" :items="filteredUsuarios" class="elevation-1">
                 <template v-slot:item="{ item }">
                     <tr>
@@ -43,6 +50,8 @@
                     </tr>
                 </template>
             </v-data-table>
+
+            <!-- Modal para confirmar la eliminación de un usuario -->
             <v-dialog v-model="mostrarConfirmacionEliminar" max-width="400">
                 <v-card>
                     <v-card-title class="headline">Confirmar eliminación</v-card-title>
@@ -57,13 +66,14 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+
         </div>
     </div>
 </template>
   
 <script>
 import axios from 'axios';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, deleteUser  } from "firebase/auth";
 import Swal from "sweetalert2";
 
 export default {
@@ -77,6 +87,10 @@ export default {
             email: '',
             esAdmin: false,
         },
+        nuevoUsuarioErrores: {
+            nombre: false,
+            email: false,
+        },
         search: '',
         headers: [
             { text: 'ID', value: 'id' },
@@ -85,11 +99,7 @@ export default {
             { text: 'Administrador', value: 'esAdmin' },
             { text: 'Opciones', value: 'opciones' },
         ],
-        usuarios: [
-            { id: 1, nombre: 'Usuario 1', email: 'usuario1@example.com', esAdmin: true },
-            { id: 2, nombre: 'Usuario 2', email: 'usuario2@example.com', esAdmin: false },
-            // Agrega más usuarios según sea necesario
-        ],
+        usuarios: [],
     }),
     computed: {
         filteredUsuarios() {
@@ -158,7 +168,22 @@ export default {
         },
 
         agregarElemento() {
-            // Validar el correo electrónico si es necesario
+            this.nuevoUsuarioErrores = {
+                nombre: false,
+                email: false,
+            };
+
+            if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.email) {
+                if (!this.nuevoUsuario.nombre) {
+                    this.nuevoUsuarioErrores.nombre = true;
+                }
+
+                if (!this.nuevoUsuario.email) {
+                    this.nuevoUsuarioErrores.email = true;
+                }
+                return;
+            }
+
             const correoElectronico = this.nuevoUsuario.email;
             const contraseñaPorDefecto = "123456789";
 
@@ -169,13 +194,9 @@ export default {
                 contraseñaPorDefecto
             )
                 .then(userCredential => {
-                    // El usuario se registró correctamente
                     const user = userCredential.user;
                     console.log("Usuario registrado con éxito:", user);
 
-                    // Aquí puedes realizar otras acciones después del registro
-                    // Por ejemplo, agregar el usuario a tu base de datos o actualizar la interfaz de usuario.
-                    console.log("Agregando usuario a la base de datos SQL Server...");
                     axios
                         .post('http://localhost:3000/api/users/registraUsuario', this.nuevoUsuario)
                         .then((response) => {
@@ -190,7 +211,6 @@ export default {
                         })
                         .catch((error) => {
                             console.log('Error al registrar el usuario en SQL:', error);
-                            console.error('Error al registrar el usuario en SQL:', error);
                         });
 
                     // Restablece los campos del formulario
@@ -198,14 +218,20 @@ export default {
                     this.mostrarFormulario = false;
 
                     // Luego, cierra el modal
-                    this.showToast("success", "Usuario registrado con éxito.");
+                    this.showToast("success", "Usuario registrado con éxito. ");
                 })
                 .catch(error => {
                     switch (error.code) {
                         case "auth/email-already-in-use":
                             this.showToast(
-                                "error",
+                                "warning",
                                 "El correo electrónico ya encuentra registrado."
+                            );
+                            break;
+                        case "auth/invalid-email":
+                            this.showToast(
+                                "warning",
+                                "Verifica el correo electrónico."
                             );
                             break;
                         default:
@@ -215,7 +241,6 @@ export default {
                             );
                             break;
                     }
-                    //console.error("Error al registrar el usuario:", error);
                 });
         },
         showToast(icono, titulo) {

@@ -9,41 +9,51 @@
           <v-card-text>
             <v-row>
               <v-col cols="12">
-                <v-text-field
-                  label="UNIDAD RESPONSABLE"
-                  v-model="unidadResponsable"
-                ></v-text-field>
+                <v-text-field label="UNIDAD RESPONSABLE" v-model="unidadResponsable"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  label="FECHA"
-                  v-model="fecha"
-                ></v-text-field>
+                <v-text-field label="FECHA" v-model="fecha"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  label="ÁREA"
-                  v-model="area"
-                ></v-text-field>
+                <v-text-field label="ÁREA" v-model="area"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  label="CENTRO DE TRABAJO"
-                  v-model="centroTrabajo"
-                ></v-text-field>
+                <v-text-field label="CENTRO DE TRABAJO" v-model="centroTrabajo"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field
-                  label="DATOS DEL SERVIDOR PÚBLICO"
-                  v-model="datosServidorPublico"
-                ></v-text-field>
+                <v-text-field label="DATOS DEL SERVIDOR PÚBLICO" v-model="datosServidorPublico"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-data-table
-                  :items="bienesAsignados"
-                  :headers="headers"
-                  class="elevation-1"
-                ></v-data-table>
+                <v-text-field label="NOMRBE" v-model="datosServidorPublico"></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field label="CURP" v-model="datosServidorPublico"></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field label="FECHA ELABORACION" v-model="datosServidorPublico"></v-text-field>
+              </v-col>
+              
+              <v-col cols="12">
+                <v-list>
+                  <v-list-item v-for="(item, index) in activosSeleccionados" :key="index">
+                    <v-list-item-content>
+                      <!-- Utiliza v-chip para mostrar cada elemento seleccionado -->
+                      <v-chip>
+                        {{ item.cant }} - {{ item.caracteristica.noInventario }} - {{ item.usuario }}
+                        <v-btn icon @click="quitarBien(index)">
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                      </v-chip>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-data-table :items="activos" :headers="headers" class="elevation-1">
+                  <template v-slot:item.agregar="props">
+                    <v-btn icon @click="agregarBien(props.item)">
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                  </template>
+                </v-data-table>
               </v-col>
             </v-row>
             <v-row>
@@ -59,7 +69,6 @@
 </template>
 
 <script>
-
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 export default {
@@ -71,22 +80,61 @@ export default {
       area: "",
       centroTrabajo: "",
       datosServidorPublico: "",
-      bienesAsignados: [
+      activosSeleccionados: [],
+      headers: [
+        { text: 'Cantidad', value: 'cant' },
+        { text: 'Número de Inventario', value: 'caracteristica.noInventario' },
+        { text: 'Marca', value: 'caracteristica.marca' },
+        { text: 'Nombre', value: 'caracteristica.nombre' },
+        { text: 'Modelo', value: 'caracteristica.modelo' },
+        { text: 'Serie', value: 'caracteristica.serie' },
+        { text: 'Usuario', value: 'usuario' },
+        { text: 'Agregar', value: 'agregar', sortable: false }
+      ],
+      activos: [
         {
           cant: 1,
           caracteristica: {
             noInventario: 1,
-            marca: "",
-            nombre: "",
-            modelo: "",
-            serie: ""
+            marca: "Marca 1",
+            nombre: "Nombre 1",
+            modelo: "Modelo 1",
+            serie: "Serie 1"
           },
-          usuario: ""
+          usuario: "Usuario 1"
+        },
+        {
+          cant: 2,
+          caracteristica: {
+            noInventario: 2,
+            marca: "Marca 2",
+            nombre: "Nombre 2",
+            modelo: "Modelo 2",
+            serie: "Serie 2"
+          },
+          usuario: "Usuario 2"
+        },
+        {
+          cant: 3,
+          caracteristica: {
+            noInventario: 3,
+            marca: "Marca 3",
+            nombre: "Nombre 3",
+            modelo: "Modelo 3",
+            serie: "Serie 3"
+          },
+          usuario: "Usuario 3"
         }
       ]
     };
   },
   methods: {
+    agregarBien(bien) {
+      this.activosSeleccionados.push(bien);
+    }, quitarBien(index) {
+      // Método para quitar un bien de la lista de seleccionados
+      this.activosSeleccionados.splice(index, 1);
+    },
     imprimirPDF() {
       const data = {
         unidadResponsable: this.unidadResponsable,
@@ -94,7 +142,7 @@ export default {
         area: this.area,
         centroTrabajo: this.centroTrabajo,
         datosServidorPublico: this.datosServidorPublico,
-        bienesAsignados: this.bienesAsignados
+        activosSeleccionados: this.activosSeleccionados
       };
 
       const doc = new jsPDF();
@@ -107,7 +155,7 @@ export default {
       doc.text("Centro de trabajo: " + data.centroTrabajo, 20, 90);
       doc.text("Datos del servidor público: " + data.datosServidorPublico, 20, 100);
 
-      const rows = data.bienesAsignados.map(bien => [
+      const rows = data.activosSeleccionados.map(bien => [
         bien.cant,
         `${bien.caracteristica.noInventario}, ${bien.caracteristica.marca}, ${bien.caracteristica.nombre}, ${bien.caracteristica.modelo}, ${bien.caracteristica.serie}`,
         bien.usuario

@@ -5,9 +5,10 @@
             <div class="col-md-6">
                 <!-- Sección de departamentos -->
                 <h2 class="text-center">Departamentos</h2>
-                <v-btn block @click="showAddDepartmentModal = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="mostrarModalDepto = true" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar departamento
                 </v-btn>
+
                 <v-text-field v-model="searchDepartment" label="Buscar departamento" append-icon="mdi-magnify"
                     class="mb-3"></v-text-field>
                 <v-data-table :headers="departmentHeaders" :items="filteredDepartments" class="elevation-1">
@@ -31,7 +32,7 @@
             <div class="col-md-6">
                 <!-- Sección de jefes de departamento -->
                 <h2 class="text-center">Jefes de departamento / área</h2>
-                <v-btn block @click="mostrarModalDepto = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="mostrarModalJefes = true" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar jefe
                 </v-btn>
                 <v-text-field v-model="searchJefe" label="Buscar jefe de departamento / área" append-icon="mdi-magnify"
@@ -93,13 +94,14 @@
                     Agregar Departamento
                 </v-card-title>
                 <v-card-text>
-                    <v-text-field v-model="nuevoDepartamento.depdepto" label="Departamento"></v-text-field>
-                    <v-text-field v-model="nuevoDepartamento.depalias" label="Alias del Departamento"></v-text-field>
-                    <v-text-field v-model="nuevoDepartamento.nombreEncargado" label="Nombre encargado"></v-text-field>
+                    <v-text-field v-model="nuevoDepartamento.depdepto" label="Departamento*" outlined
+                        :error="nuevoDepartamentoErrores.depdepto"></v-text-field>
+                    <v-text-field v-model="nuevoDepartamento.depalias" label="Alias del Departamento*" outlined
+                        :error="nuevoDepartamentoErrores.depalias"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" @click="agregarDepartamento">Agregar</v-btn>
-                    <v-btn color="red darken-1" @click="showAddDepartmentModal = false">Cancelar</v-btn>
+                    <v-btn color="red darken-1" @click="mostrarModalDepto = false">Cancelar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -111,17 +113,19 @@
                     Agregar jefe de departamento / área
                 </v-card-title>
                 <v-card-text>
-                    <v-text-field v-model="nuevoJefe.jefenombre" label="Nombre del Jefe"></v-text-field>
+                    <v-text-field v-model="nuevoJefe.jefenombre" label="Nombre del Jefe" outlined
+                        :error="nuevoJefeErrores.jefenombre"></v-text-field>
                     <v-autocomplete v-model="nuevoJefe.departamento" :items="departamentos" label="Departamento"
-                        item-text="depdepto" item-value="depclave"></v-autocomplete>
-                    <v-radio-group v-model="nuevoJefe.jefetipo_desc" row>
+                        item-text="depdepto" item-value="depclave" outlined
+                        :error="nuevoJefeErrores.departamento"></v-autocomplete>
+                    <v-radio-group v-model="nuevoJefe.jefetipo_desc" row :error="nuevoJefeErrores.jefetipo_desc">
                         <v-radio label="Jefe de Departamento" :value="true"></v-radio>
                         <v-radio label="Jefe de Área" :value="false"></v-radio>
                     </v-radio-group>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" @click="agregarJefe">Agregar</v-btn>
-                    <v-btn color="red darken-1" @click="mostrarModalDepto = false">Cancelar</v-btn>
+                    <v-btn color="red darken-1" @click="mostrarModalJefes = false">Cancelar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -130,17 +134,22 @@
         <v-dialog v-model="mostrarModalAreas" max-width="500">
             <v-card>
                 <v-card-title>
-                    Agregar Área
+                    {{ modoEdicion ? 'Editar Área' : 'Agregar Área' }}
                 </v-card-title>
                 <v-card-text>
                     <v-autocomplete v-model="nuevaArea.depdepto" :items="departamentos" label="Seleccionar Departamento"
-                        item-text="depdepto" item-value="depclave"></v-autocomplete>
-                    <v-autocomplete v-model="nuevaArea.jefenombre" :items="jefes" label="Seleccionar Encargado del Área"
-                        item-text="jefenombre" item-value="jefeid"></v-autocomplete>
-                    <v-text-field v-model="nuevaArea.areanombre" label="Nombre del Área"></v-text-field>
+                        item-text="depdepto" item-value="depclave" outlined :error="nuevaAreaErrores.depdepto"
+                        @input="filtrarEncargadosPorDepartamento"></v-autocomplete>
+                    <v-autocomplete v-model="nuevaArea.jefenombre" :items="managerOptions"
+                        label="Seleccionar Encargado del Área" item-text="jefenombre" item-value="jefeid" outlined
+                        :error="nuevaAreaErrores.jefenombre"></v-autocomplete>
+                    <v-text-field v-model="nuevaArea.areanombre" label="Nombre del Área" outlined
+                        :error="nuevaAreaErrores.areanombre"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="blue darken-1" @click="agregarArea">Agregar</v-btn>
+                    <v-btn color="blue darken-1" @click="modoEdicion ? editarArea() : agregarArea">
+                        {{ modoEdicion ? 'Guardar cambios' : 'Agregar' }}
+                    </v-btn>
                     <v-btn color="red darken-1" @click="mostrarModalAreas = false">Cancelar</v-btn>
                 </v-card-actions>
             </v-card>
@@ -185,11 +194,19 @@ export default {
             depalias: '',
             nombreEncargado: '',
         },
+        nuevoDepartamentoErrores: {
+            depdepto: false,
+            depalias: false,
+        },
         nuevoJefe: {
-            jefeid: '',
             jefenombre: '',
             departamento: '',
             jefetipo_desc: '',
+        },
+        nuevoJefeErrores: {
+            jefenombre: false,
+            departamento: false,
+            jefetipo_desc: false,
         },
         nuevaArea: {
             areaid: '',
@@ -197,20 +214,23 @@ export default {
             jefenombre: '',
             depdepto: '',
         },
+        nuevaAreaErrores: {
+            areaid: false,
+            areanombre: false,
+            jefenombre: false,
+            depdepto: false,
+        },
         departments: [],
         departamentos: [],
         jefes: [],
+        jefesCombo: [],
         areas: [],
         jefesPorDepartamento: [],
         managerOptions: [],
         departmentOptions: [],
         edicionActivaDepto: false,
-        nuevoDeptoErrores: {
-            nombre: false,
-            caracteristicas: false,
-            departamento: false,
-            valor: false,
-        },
+        modoEdicion: false,
+
     }),
     computed: {
         filteredDepartments() {
@@ -226,7 +246,11 @@ export default {
         },
         filteredJefes() {
             return this.jefes.filter((jefe) => {
-                const searchTerm = this.searchJefes ? this.searchJefes.toLowerCase() : '';  // Agrega un chequeo para evitar 'undefined'
+                const searchTerm = this.searchJefes ? this.searchJefes.toLowerCase() : '';
+
+                // Log para depurar
+                console.log('Jefe:', jefe);
+
                 for (const key in jefe) {
                     if (jefe[key] && jefe[key].toString().toLowerCase().includes(searchTerm)) {
                         return true;
@@ -248,45 +272,37 @@ export default {
         },
     },
     methods: {
-
-        actualizarJefes() {
-            // if (this.nuevoUsuario.departamento) {
-            //     // Filtra las áreas según el departamento seleccionado
-            //     this.jefesPorDepartamento = this.jefes.filter(
-            //         (jefe) => jefe.jefeid === this.nuevoJefe.jefeid
-            //     );
-            //     // Restablece el valor del área si ya no es válido
-            //     if (!this.jefesPorDepartamento.find((a) => a.jefeid === this.nuevoUsuario.jefeid)) {
-            //         this.nuevoJefe.jefenombre = '';
-            //     }
-            // } else {
-            //     // Si no se ha seleccionado un departamento, reinicia las áreas
-            //     this.jefesPorDepartamento = [];
-            //     this.nuevoJefe.jefenombre = '';
-            // }
+        filtrarEncargadosPorDepartamento() {
+            // Filtra los jefes por el departamento seleccionado
+            console.log('Departamento seleccionado:', this.nuevaArea.depdepto);
+            if (this.nuevaArea.depdepto) {
+                this.managerOptions = this.jefesCombo.filter(jefe => jefe.depclave === this.nuevaArea.depdepto);
+            } else {
+                // Si no hay departamento seleccionado, muestra todos los encargados
+                this.managerOptions = this.jefesCombo;
+            }
         },
+
         editarArea(id) {
             console.log(id)
             this.cargarAreaPorId(id);
 
             this.edicionActiva = id !== null;
-            //this.idActivoAEditar = id;
+            this.modoEdicion = true;
             this.mostrarModalAreas = true;
         },
         editarJefe(id) {
             console.log(id)
             this.cargarJefePorId(id);
 
-            //this.edicionActiva = id !== null;
-            //this.idActivoAEditar = id;
+            this.modoEdicion = true;
             this.mostrarModalJefes = true;
         },
         editarDepartamento(id) {
             console.log(id)
             this.cargarDepartamentoPorId(id);
 
-            //this.edicionActiva = id !== null;
-            //this.idActivoAEditar = id;
+            this.modoEdicion = true;
             this.mostrarModalDepto = true;
         },
         cargarDepartamentoPorId(depClave) {
@@ -317,7 +333,8 @@ export default {
                     // Carga los datos del activo en el formulario
                     this.nuevoJefe.jefeid = response.data[0].jefeid;
                     this.nuevoJefe.jefenombre = response.data[0].jefenombre;
-                    this.nuevoJefe.jefetipo_desc = response.data[0].jefetipo;
+                    this.nuevoJefe.departamento = response.data[0].departamento;
+                    this.nuevoJefe.jefetipo_desc = response.data[0].jefetipo_desc;
 
                     // Buscar el departamento correspondiente en la lista de departamentos
                     const departamentoSeleccionado = this.departamentos.find(
@@ -361,51 +378,129 @@ export default {
                 });
         },
         agregarDepartamento() {
-            // Agregar lógica para guardar el nuevo departamento en tu lista de departamentos
-            this.departments.push({
-                id: this.departments.length + 1,
-                departamento: this.nuevoDepartamento.name,
-                encargado: this.nuevoDepartamento.alias,
-            });
+            this.nuevoDepartamentoErrores = {
+                depdepto: false,
+                depalias: false
+            };
 
-            // Reiniciar los datos del nuevo departamento y ocultar el modal
-            this.nuevoDepartamento.name = '';
-            this.nuevoDepartamento.alias = '';
-            this.showAddDepartmentModal = false;
-        },
-        agregarJefe() {
-            // Agregar lógica para guardar el nuevo jefe de departamento en tu lista de jefes
-            this.jefes.push({
-                id: this.jefes.length + 1,
-                nombre: this.nuevoJefe.name,
-                departamento: this.nuevoJefe.department,
-                role: this.nuevoJefe.role,
-            });
+            if (!this.nuevoDepartamento.depdepto || !this.nuevoDepartamento.depalias) {
+                if (!this.nuevoDepartamento.depdepto) {
+                    this.nuevoDepartamentoErrores.depdepto = true;
+                }
 
-            // Reiniciar los datos del nuevo jefe de departamento y ocultar el modal
-            this.nuevoJefe.name = '';
-            this.nuevoJefe.department = '';
-            this.nuevoJefe.role = 'Jefe de Departamento';
+                if (!this.nuevoDepartamento.depalias) {
+                    this.nuevoDepartamentoErrores.depalias = true;
+                }
+                return;
+            }
+
+            axios
+                .post('http://localhost:3000/api/departments/registraDepto', this.nuevoDepartamento)
+                .then((response) => {
+                    console.log('Usuario registrado en SQL con éxito:', response.data);
+                    this.nuevoDepartamento = {
+                        depdepto: '',
+                        depalias: ''
+                    };
+                    //this.cargarDatosTabla();
+                })
+                .catch((error) => {
+                    console.log('Error al registrar el depto en SQL:', error);
+                });
+            this.nuevoDepartamento.depdepto = '';
+            this.nuevoDepartamento.depalias = '';
             this.mostrarModalDepto = false;
         },
-        agregarArea() {
-            // Agregar lógica para guardar la nueva área en tu lista de áreas
-            this.areas.push({
-                id: this.areas.length + 1,
-                departamento: this.newArea.department,
-                nombre: this.newArea.name,
-                encargado: this.newArea.manager,
-            });
 
-            // Reiniciar los datos del nuevo área y ocultar el modal
-            this.newArea.name = '';
-            this.newArea.department = '';
-            this.newArea.manager = '';
+        agregarJefe() {
+            this.nuevoJefeErrores = {
+                jefeNombre: false,
+                jefetipo_desc: false,
+                departamento: false
+            };
+
+            if (!this.nuevoJefe.jefenombre || !this.nuevoJefe.departamento) {
+
+                if (!this.nuevoJefe.jefenombre) {
+                    this.nuevoJefeErrores.jefenombre = true;
+                }
+
+                if (!this.nuevoJefe.departamento) {
+                    this.nuevoJefeErrores.departamento = true;
+                }
+                return;
+            }
+
+            axios
+                .post('http://localhost:3000/api/jefes/registraJefe', this.nuevoJefe)
+                .then((response) => {
+                    console.log('jefe registrado en SQL con éxito:', response.data);
+                    this.nuevoJefe = {
+                        jefeNombre: '',
+                        jefetipo_desc: '',
+                        departamento: ''
+                    };
+                })
+                .catch((error) => {
+                    console.log('Error al registrar el jefe en SQL:', error);
+                });
+
+            this.nuevoJefe.jefenombre = '';
+            this.nuevoJefe.departamento = '';
+            this.mostrarModalJefes = false;
+        },
+
+        agregarArea() {
+            this.nuevaAreaErrores = {
+                areaid: false,
+                areanombre: false,
+                jefenombre: false,
+                depdepto: false,
+            };
+
+            if (!this.nuevaArea.areanombre || !this.nuevaArea.jefenombre || !this.nuevaArea.depdepto) {
+
+                if (!this.nuevaArea.areanombre) {
+                    this.nuevaAreaErrores.areanombre = true;
+                }
+
+                if (!this.nuevaArea.jefenombre) {
+                    this.nuevaAreaErrores.jefenombre = true;
+                }
+
+                if (!this.nuevaArea.depdepto) {
+                    this.nuevaAreaErrores.depdepto = true;
+                }
+
+                return;
+            }
+
+            axios
+                .post('http://localhost:3000/api/areas/registraArea', this.nuevaArea)
+                .then((response) => {
+                    console.log('Area registrada en SQL con éxito:', response.data);
+                    this.nuevaArea = {
+                        areaid: '',
+                        areanombre: '',
+                        jefenombre: '',
+                        depdepto: '',
+                    };
+                })
+                .catch((error) => {
+                    console.log('Error al registrar el depto en SQL:', error);
+                });
+
+            this.managerOptions = this.jefesCombo;
+            this.nuevaArea.areanombre = '';
+            this.nuevaArea.jefenombre = '';
+            this.nuevaArea.depdepto = '';
             this.mostrarModalAreas = false;
         },
-        // Agrega tus métodos para editar y eliminar departamentos y jefes de departamento según tus necesidades
     },
     created() {
+        this.nuevoJefe.jefetipo_desc = false;
+
+        // DataTable de departamentos
         axios.get('http://localhost:3000/api/departments')
             .then(response => {
                 console.log(response.data)
@@ -415,15 +510,22 @@ export default {
                 console.error('Error al cargar departments', error);
             });
 
+        // DataTable de jefes
         axios.get('http://localhost:3000/api/jefes')
             .then(response => {
                 console.log(response.data)
-                this.jefes = response.data;
+                this.jefes = response.data.map(jefe => ({
+                    jefeid: jefe.jefeid,
+                    jefenombre: jefe.jefenombre,
+                    departamento: jefe.departamento,
+                    jefetipo_desc: jefe.jefetipo_desc,
+                }));
             })
             .catch(error => {
                 console.error('Error al cargar jefes', error);
             });
 
+        // DataTable de areas
         axios.get('http://localhost:3000/api/areas')
             .then(response => {
                 console.log(response.data)
@@ -441,9 +543,10 @@ export default {
                 console.error('Error al cargar la lista de departamentos', error);
             });
 
+        // Combo de jefes
         axios.get('http://localhost:3000/api/combo/jefes')
             .then(response => {
-                this.jefes = response.data;
+                this.jefesCombo = response.data;
             })
             .catch(error => {
                 console.error('Error al cargar la lista de jefes', error);

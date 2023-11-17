@@ -41,12 +41,7 @@
                         <td>
                             <v-switch v-model="item.UsrTipo" @change="actualizarTipoUsuario(item)"></v-switch>
                         </td>
-                        <td>
-                            <v-btn @click="mostrarConfirmacionEliminar = true; usuarioAEliminar = item" class="ma-1 red" fab
-                                dark small>
-                                <v-icon>mdi-delete</v-icon>
-                            </v-btn>
-                        </td>
+                        
                     </tr>
                 </template>
             </v-data-table>
@@ -97,7 +92,6 @@ export default {
             { text: 'Nombre', value: 'nombre' },
             { text: 'Email', value: 'email' },
             { text: 'Administrador', value: 'esAdmin' },
-            { text: 'Opciones', value: 'opciones' },
         ],
         usuarios: [],
     }),

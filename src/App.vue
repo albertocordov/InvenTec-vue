@@ -62,4 +62,5 @@ export default {
   color: rgb(255, 255, 255);
   padding-top: 1px;
   font-size: 200%;
+
 }</style>

@@ -5,7 +5,7 @@
             <div class="col-md-6">
                 <!-- Sección de departamentos -->
                 <h2 class="text-center">Departamentos</h2>
-                <v-btn block @click="showAddDepartmentModal = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="showAddDepartmentModal = true" class="mb-3 green btnagregar btnagregardepart" dark>
                     <v-icon>mdi-plus</v-icon> Agregar departamento
                 </v-btn>
                 <v-text-field v-model="searchDepartment" label="Buscar departamento" append-icon="mdi-magnify"
@@ -207,6 +207,24 @@ export default {
   
 <style>
 
+.v-data-table .v-table__overflow {
+  overflow-x: auto; /* Agrega desplazamiento horizontal si es necesario */
+}
+
+.v-data-table th {
+  padding: 16px; /* Asegúrate de que este padding coincida con el de la otra tabla */
+  white-space: nowrap; /* Para prevenir saltos de línea en las cabeceras */
+}
+
+.v-data-table td {
+  padding: 16px; /* Igual que el padding de los <th> */
+}
+
+/* Asegúrate de que los botones tienen el mismo margen en ambas tablas */
+.v-btn {
+  margin: 8px;
+}
+
 .btnagregar{
 margin-top: 15px;
 
@@ -215,6 +233,14 @@ margin-top: 15px;
 .entrar {
     animation: entrada 0.7s ease;
 }
+
+@media (max-width: 960px) {
+
+.btnagregardepart {
+    margin-top: 53.5px;
+}
+}
+
 
 @keyframes entrada {
     from {
@@ -225,6 +251,7 @@ margin-top: 15px;
         opacity: 100%;
     }
 }
+
 
 
 </style>

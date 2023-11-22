@@ -1,82 +1,5 @@
 <template>
-  <div class="cuerpo">
-    <!-- Área del perfil -->
-    <div class="perfil">
-      <div class="usuario">
-        <div class="imagen-container">
-          <v-img :src="require('@/assets/jorge.jpg')" class="shrink mr-2 iusuario" width="300" height="300" />
-        </div>
-        <v-divider :thickness="20" class="border-opacity-100"></v-divider>
-        <span class="font-weight-medium text-h5">Jorge Luis Rodriguez Romo</span>
-        <v-btn @click="abrirDialogEditar" block
-          class="v-btn v-btn--elevated v-theme--dark bg-secondary v-btn--density-default v-btn--size-default v-btn--variant-elevated">Editar
-          Perfil</v-btn>
-      </div>
-      <v-dialog v-model="dialogEditar" max-width="600">
-        <v-card>
-          <v-card-title>
-            Editar Perfil
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field label="Usuario" required></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field label="Contraseña" type="password" required></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field label="Correo" required></v-text-field>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue-darken-1" variant="text" @click="dialogEditar = false">Cancelar</v-btn>
-            <v-btn color="blue-darken-1" variant="text" @click="guardarCambios">Guardar Cambios</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </div>
-    <!-- Tabla -->
-    <div class="tabla">
-      <h2>Últimas Actualizaciones en el Sistema de Inventario</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Departamento</th>
-            <th>Artículo</th>
-            <th>Descripción del Artículo</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>2023-11-01</td>
-            <td>Industrial</td>
-            <td>Producto A</td>
-            <td>Actualización de stock</td>
-            <td>
-              <v-btn block rounded="xl" class="v-btn v-btn--elevated v-theme--dark bg-success v-btn--density-default">Ver Detalle</v-btn>
-            </td>
-          </tr>
-          <tr>
-            <td>2023-10-28</td>
-            <td>Bioquímica</td>
-            <td>Producto B</td>
-            <td>Nueva adición</td>
-            <td>
-              <v-btn block rounded="xl" class="v-btn v-btn--elevated v-theme--dark bg-success v-btn--density-default" >Ver Detalle</v-btn>
-            </td>
-          </tr>
-          <!-- Puedes agregar más filas según tus datos -->
-        </tbody>
-      </table>
-    </div>
-  </div>
+   
 </template>
   
 <script>
@@ -84,6 +7,12 @@ export default {
   data() {
     return {
       dialogEditar: false,
+      dialogEditar: false,
+      updates: [
+        { fecha: '2023-11-01', departamento: 'Industrial', articulo: 'Producto A', descripcion: 'Actualización de stock' },
+        { fecha: '2023-10-28', departamento: 'Bioquímica', articulo: 'Producto B', descripcion: 'Nueva adición' },
+        // ... más datos ...
+      ],
     };
   },
   methods: {
@@ -102,31 +31,75 @@ export default {
 </script>
   
 <style>
+:root {
+  --color-primary: #5b8bf7;
+  --color-secondary: #f2f2f2;
+  --color-success: #4caf50;
+  --color-text: #333;
+  --font-family-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-family-title: 'Roboto', sans-serif;
+}
+
 .cuerpo {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   padding: 20px;
-  height: 110%;
+  gap: 20px;
+  /* Añade espacio entre elementos cuando se envuelvan */
 }
 
 .perfil {
-  max-width: 400px;
-  margin-bottom: 80px;
-  /* Margen inferior para dejar espacio antes del pie de la página */
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  /* Añade un efecto de sombra al perfil */
+  background-color: var(--color-secondary);
   border-radius: 10px;
-  /* Añade esquinas redondeadas */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+  /* Transición suave para la sombra */
+  padding: 20px;
+  /* Espacio interno para evitar desbordes */
+  overflow: hidden;
+  /* Previene el desborde del contenido */
+}
+
+.perfil:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.perfil .usuario .font-weight-medium {
+  color: var(--color-text);
+  font-family: var(--font-family-title);
+  font-size: 1.1em;
+  /* Ajusta el tamaño del texto si es necesario */
+  white-space: nowrap;
+  /* Previene el salto de línea del nombre */
+  overflow: hidden;
+  /* Oculta el texto que se desborde */
+  text-overflow: ellipsis;
+  /* Añade "..." si el texto se desborda */
+  display: block;
+  /* Asegura que el texto se muestre en una línea */
+}
+
+.v-btn {
+  transition: background-color 0.3s ease;
+  /* Transición suave para el color de fondo */
+  margin-top: 10px;
+  /* Espacio sobre el botón */
+  font-size: 0.9em;
+  /* Ajusta el tamaño del texto del botón si es necesario */
+}
+
+.v-btn:hover {
+  filter: brightness(110%);
 }
 
 .tabla {
-  /* Estilos para el área de la tabla */
-  padding: 20px;
-  padding-right: 160px;
-  background-color: #f8f8f8;
+  background-color: var(--color-secondary);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  overflow-x: auto;
+  /* Espacio interno para la tabla */
 }
 
 table {
@@ -137,14 +110,13 @@ table {
 
 th,
 td {
-  border: 1px solid #ddd;
   padding: 8px;
-  text-align: left;
+  text-align: center;
 }
 
 th {
-  background-color: #333;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: #ffffff;
 }
 
 th:first-child,
@@ -154,27 +126,117 @@ td:first-child {
 }
 
 .usuario {
-  max-width: 400px;
-  max-height: 400px;
-  padding-left: 50px;
+  padding: 20px;
+  /* Espacio interno alrededor del contenido del usuario */
 }
 
 .imagen-container {
-  padding-top: 30px;
-  text-align: center;
-  /* Centra horizontalmente */
-  display: flex;
-  align-items: center;
-  /* Centra verticalmente */
-  justify-content: center;
-  /* Centra horizontalmente */
+  margin: 0 auto;
+  /* Centra el contenedor de la imagen */
+  padding: 20px;
 }
 
 .iusuario {
-  width: 100%;
-  /* Ajusta el ancho al 100% del contenedor */
-  max-width: 400px;
-  /* Establece un ancho máximo para la imagen */
+  width: auto;
+  /* Ajusta el ancho de la imagen automáticamente */
+  max-width: 100%;
+  /* Asegura que la imagen no sea más grande que su contenedor */
   border-radius: 100%;
+  /* Resto del código ... */
 }
-</style>
+
+.v-simple-table {
+  max-width: 100%;
+  width: 100%;
+  overflow-x: auto; /* Permite desplazamiento en dispositivos pequeños */
+}
+
+.v-simple-table thead th {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 16px;
+  font-weight: bold;
+}
+
+.v-simple-table tbody td {
+  background-color: white;
+  color: var(--color-text);
+  padding: 16px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+/* Ajustes para la vista móvil */
+@media (max-width: 768px) {
+
+  .tabla {
+    width: 100%; /* Ajusta el ancho de la tabla para pantallas pequeñas */
+    margin-top: 20px; /* Asegura espacio suficiente encima de la tabla */
+  }
+
+  .v-simple-table {
+    min-width: 600px; /* Establece un ancho mínimo para la tabla */
+  }
+
+  .perfil .usuario .font-weight-medium {
+    font-size: 16px; /* Ajuste del tamaño de la fuente para nombres más largos */
+    padding: 0 10px; /* Espacio horizontal para prevenir desbordamiento */
+  }
+
+  .v-btn {
+    padding: 8px 16px; /* Ajuste del tamaño de los botones */
+  }
+
+  .v-simple-table {
+    font-size: 14px; /* Ajuste del tamaño de la fuente de la tabla */
+  }
+}
+
+
+
+
+@media (max-width: 430px) {
+  .cuerpo {
+    flex-direction: column;
+    /* Los elementos se apilan verticalmente */
+    align-items: center;
+    /* Centra los elementos horizontalmente */
+  }
+
+  .perfil {
+    width: 90%;
+    /* Ajusta el ancho de los contenedores para dispositivos móviles */
+    max-width: 90%;
+    /* Asegura que los contenedores no sean más anchos que el 90% */
+    margin-bottom: 20px;
+    /* Espacio debajo de cada contenedor */
+  }
+
+  .usuario {
+    padding: 0;
+    /* Remueve el padding para ahorrar espacio */
+  }
+
+  .imagen-container {
+    padding: 20px;
+  }
+
+  .iusuario {
+    width: auto;
+    /* Ajusta el ancho de la imagen automáticamente */
+    max-width: 100%;
+    /* Asegura que la imagen no sea más grande que el contenedor */
+    height: auto;
+    /* Mantiene la relación de aspecto de la imagen */
+  }
+
+  .font-weight-medium {
+    font-size: 1em;
+    /* Disminuye el tamaño del texto para ajustarse al contenedor */
+  }
+
+  .v-btn {
+    font-size: 0.8em;
+    /* Disminuye el tamaño del texto en los botones */
+  }
+}</style>
+

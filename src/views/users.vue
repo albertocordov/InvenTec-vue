@@ -4,7 +4,7 @@
             <h1 class="text-center">Usuarios</h1>
             <v-dialog v-model="mostrarFormulario" max-width="500">
                 <template v-slot:activator="{ on }">
-                    <v-btn @click="mostrarFormulario = true" class="mb-3 green" dark>
+                    <v-btn block @click="mostrarFormulario = true" class="mb-3 green" dark>
                         <v-icon>mdi-plus</v-icon> Agregar Usuario
                     </v-btn>
                 </template>

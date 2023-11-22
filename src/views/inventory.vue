@@ -6,7 +6,6 @@
 
         <!-- Botón para mostrar el formulario de registro de un nuevo activo -->
         <template v-slot:activator="{ on }">
-          <v-btn block @click="mostrarFormulario = true" class="mb-3 green" dark>
           <v-btn @click="registraActivo" class="mb-3 green" dark>
             <v-icon>mdi-plus</v-icon> Agregar activo
           </v-btn>
@@ -32,8 +31,8 @@
             <v-text-field v-model="nuevoUsuario.camb" label="Camb" outlined></v-text-field>
             <v-select v-model="nuevoUsuario.departamento" :items="departamentos" label="Departamento*" outlined
               :error="nuevoUsuarioErrores.departamento" item-text="depdepto" item-value="depclave"></v-select>
-            <v-select v-model="nuevoUsuario.area" :items="areasPorDepartamento" label="Área*" outlined :error="nuevoUsuarioErrores.area"
-              item-text="areanombre" item-value="areaid"></v-select>
+            <v-select v-model="nuevoUsuario.area" :items="areasPorDepartamento" label="Área*" outlined
+              :error="nuevoUsuarioErrores.area" item-text="areanombre" item-value="areaid"></v-select>
             <v-textarea v-model="nuevoUsuario.observaciones" label="Observaciones" outlined></v-textarea>
           </v-card-text>
           <v-card-actions>
@@ -88,6 +87,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from "sweetalert2";
 
 export default {
   data: () => ({
@@ -179,6 +179,24 @@ export default {
       });
   },
   methods: {
+    alertaToast(icono, titulo) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-start",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: toast => {
+          toast.addEventListener("mouseenter", Swal.stopTimer);
+          toast.addEventListener("mouseleave", Swal.resumeTimer);
+        }
+      });
+
+      Toast.fire({
+        icon: icono,
+        title: titulo
+      });
+    },
 
     // Carga los datos de los activos
     cargarActivos() {
@@ -197,7 +215,7 @@ export default {
       axios
         .get(`http://localhost:3000/api/inventory/${ActId}`)
         .then((response) => {
-          
+
           // Carga los datos del activo en el formulario
           this.nuevoUsuario.idSep = response.data[0].ActIdSep;
           this.nuevoUsuario.noInv = response.data[0].ActNoInv;
@@ -247,6 +265,7 @@ export default {
           if (index !== -1) {
             this.inventario[index] = this.nuevoUsuario;
           }
+          this.alertaToast("success", "Activo modificado correctamente.");
           this.cargarActivos();
           this.cancelarEdicion();
         })
@@ -331,6 +350,7 @@ export default {
             if (index !== -1) {
               this.inventario.splice(index, 1);
             }
+            this.alertaToast("success", "Activo eliminado correctamente.");
             this.mostrarConfirmacionEliminar = false;
           })
           .catch((error) => {
@@ -398,6 +418,7 @@ export default {
             observaciones: '',
             idSep: '',
           };
+          this.alertaToast("success", "Activo registrado correctamente.");
           this.cargarActivos();
           this.mostrarFormulario = false;
         })

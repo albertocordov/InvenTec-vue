@@ -5,7 +5,7 @@
     <v-row align="center" justify="center">
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
-          <h2>Título 1</h2>
+          <h2>Activos por departamento</h2>
           <v-select label="Seleccionar" :items="opciones"></v-select>
           <v-btn @click="generarPDF(1)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
@@ -20,7 +20,7 @@
 
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
-          <h2>Título 2</h2>
+          <h2>Total de activos por departamento</h2>
           <v-select label="Seleccionar" :items="opciones"></v-select>
           <v-btn @click="generarPDF(2)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
@@ -38,7 +38,7 @@
     <v-row align="center" justify="center">
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
-          <h2>Título 3</h2>
+          <h2>Inventario por fecha</h2>
           <v-select label="Seleccionar" :items="opciones"></v-select>
           <v-btn @click="generarPDF(3)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
@@ -53,7 +53,7 @@
 
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
-          <h2>Título 4</h2>
+          <h2>Impresiones por departamento</h2>
           <v-select label="Seleccionar" :items="opciones"></v-select>
           <v-btn @click="generarPDF(4)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
@@ -73,6 +73,7 @@
 export default {
   name: 'reports',
   data: () => ({
+    activos: ['Activos por área', 'Opción 2', 'Opción 3', 'Opción 4'],
     opciones: ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'],
   }),
   methods: {

@@ -380,4 +380,25 @@ router.delete('/api/jefes/eliminar/:jefeid', async (req, res) => {
   }
 });
 
+router.delete('/api/areas/eliminar/:areaid', async (req, res) => {
+  const {
+    areaid
+  } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('areaid', sql.Int, areaid)
+      .query('DELETE FROM areas WHERE areaid = @areaid');
+
+    console.log(`Depto eliminado con éxito. areaid: ${areaid}`);
+ 
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al eliminar el area: ${error.message}`);
+  }
+});
+
 module.exports = router;

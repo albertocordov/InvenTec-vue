@@ -330,9 +330,10 @@ export default {
                                 this.departamentos.splice(index, 1);
                             }
                             this.cargaDatosCombos();
+                            this.cargaDatosDeptos();
                         })
                         .catch((error) => {
-                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado.");
+                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado. Se encuentra relacionado en otra tabla.");
                             console.error('Error al eliminar el elemento:', error);
                         });
                     break;
@@ -347,9 +348,10 @@ export default {
                             if (index !== -1) {
                                 this.jefes.splice(index, 1);
                             }
+                            this.cargaDatosDeptos();
                         })
                         .catch((error) => {
-                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado.");
+                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado. Se encuentra relacionado en otra tabla.");
                             console.error('Error al eliminar el elemento:', error);
                         });
                     break;
@@ -366,7 +368,7 @@ export default {
                             }
                         })
                         .catch((error) => {
-                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado.");
+                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado. Se encuentra relacionado en otra tabla.");
                             console.error('Error al eliminar el elemento:', error);
                         });
                     break;
@@ -642,6 +644,7 @@ export default {
                     };
                     this.cargaDatosJefes();
                     this.cargaDatosDeptos();
+                    this.cargaDatosCombos();
                 })
                 .catch((error) => {
                     this.alertaToast("error", "Error al registrar jefe: " + error);

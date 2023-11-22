@@ -5,7 +5,7 @@
             <div class="col-md-6">
                 <!-- Sección de departamentos -->
                 <h2 class="text-center">Departamentos</h2>
-                <v-btn block @click="showAddDepartmentModal = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="showAddDepartmentModal = true" class="mb-3 green btnagregar btnagregardepart" dark>
                     <v-icon>mdi-plus</v-icon> Agregar departamento
                 </v-btn>
                 <v-text-field v-model="searchDepartment" label="Buscar departamento" append-icon="mdi-magnify"
@@ -453,14 +453,23 @@ export default {
 </script>
   
 <style>
-.btnagregar {
-    margin-top: 15px;
+
+.btnagregar{
+margin-top: 15px;
 
 }
 
 .entrar {
     animation: entrada 0.7s ease;
 }
+
+@media (max-width: 960px) {
+
+.btnagregardepart {
+    margin-top: 53.5px;
+}
+}
+
 
 @keyframes entrada {
     from {
@@ -471,4 +480,6 @@ export default {
         opacity: 100%;
     }
 }
+
+
 </style>

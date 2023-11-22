@@ -7,10 +7,14 @@
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn v-on="on" v-bind="attrs" text>
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+              style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
+              <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"></path>
+            </svg>
           </v-btn>
         </template>
         <v-list>
+
           <v-list-item v-for="item in menuItems" :key="item.value">
             <router-link :to="item.value">
               <v-btn text>
@@ -32,7 +36,6 @@
 export default {
   data() {
     return {
-      menuInicio: false,
       drawer: true,
       inicioSesion: false,
       menuItems: [
@@ -48,7 +51,6 @@ export default {
   },
   watch: {
     $route(to) {
-      this.menuInicio = to.path !== '/';
       this.inicioSesion = to.path === '/'; // Verifica si la ruta es la ventana de inicio de sesión
     }
   }
@@ -60,5 +62,5 @@ export default {
   color: rgb(255, 255, 255);
   padding-top: 1px;
   font-size: 200%;
-}
-</style>
+
+}</style>

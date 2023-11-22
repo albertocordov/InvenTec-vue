@@ -6,6 +6,7 @@
 
         <!-- Botón para mostrar el formulario de registro de un nuevo activo -->
         <template v-slot:activator="{ on }">
+          <v-btn block @click="mostrarFormulario = true" class="mb-3 green" dark>
           <v-btn @click="registraActivo" class="mb-3 green" dark>
             <v-icon>mdi-plus</v-icon> Agregar activo
           </v-btn>

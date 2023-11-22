@@ -24,7 +24,7 @@
                         <v-switch v-model="nuevoUsuario.esAdmin" label="Administrador"></v-switch>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn color="green" @click="agregarElemento">Registrar</v-btn>
+                        <v-btn color="green" @click="registrarUsuario">Registrar</v-btn>
                         <v-btn @click="mostrarFormulario = false">Cancelar</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -41,12 +41,7 @@
                         <td>
                             <v-switch v-model="item.UsrTipo" @change="actualizarTipoUsuario(item)"></v-switch>
                         </td>
-                        <td>
-                            <v-btn @click="mostrarConfirmacionEliminar = true; usuarioAEliminar = item" class="ma-1 red" fab
-                                dark small>
-                                <v-icon>mdi-delete</v-icon>
-                            </v-btn>
-                        </td>
+                        
                     </tr>
                 </template>
             </v-data-table>
@@ -97,7 +92,6 @@ export default {
             { text: 'Nombre', value: 'nombre' },
             { text: 'Email', value: 'email' },
             { text: 'Administrador', value: 'esAdmin' },
-            { text: 'Opciones', value: 'opciones' },
         ],
         usuarios: [],
     }),
@@ -134,7 +128,7 @@ export default {
             axios.delete(`http://localhost:3000/api/users/eliminarUsuario/${userId}`)
                 .then((response) => {
                     console.log('Usuario eliminado con éxito:', response.data);
-                    this.cargarDatosTabla();
+                    this.cargarUsuarios();
                     this.mostrarConfirmacionEliminar = false;
                     this.showToast("success", "Usuario eliminado con éxito.");
                 })
@@ -156,7 +150,7 @@ export default {
                     console.error('Error al actualizar el tipo de usuario en la base de datos:', error);
                 });
         },
-        cargarDatosTabla() {
+        cargarUsuarios() {
             axios
                 .get('http://localhost:3000/api/users')
                 .then((response) => {
@@ -167,7 +161,7 @@ export default {
                 });
         },
 
-        agregarElemento() {
+        registrarUsuario() {
             this.nuevoUsuarioErrores = {
                 nombre: false,
                 email: false,
@@ -206,7 +200,7 @@ export default {
                                 email: '',
                                 esAdmin: '',
                             };
-                            this.cargarDatosTabla();
+                            this.cargarUsuarios();
                             this.mostrarFormulario = false;
                         })
                         .catch((error) => {

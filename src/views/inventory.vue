@@ -36,7 +36,7 @@
             <v-textarea v-model="nuevoUsuario.observaciones" label="Observaciones" outlined></v-textarea>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="green" @click="edicionActiva ? guardarCambios() : registrarNuevoUsuario()">
+            <v-btn color="green" @click="edicionActiva ? guardarCambios() : registrarNuevoActivo()">
               {{ edicionActiva ? 'Guardar cambios' : 'Registrar' }}
             </v-btn>
             <v-btn @click="cancelarEdicion()">Cancelar</v-btn>
@@ -62,7 +62,7 @@
 
       <!-- DataTable de activos -->
       <v-text-field v-model="search" label="Buscar activo" append-icon="mdi-magnify" class="mb-3"></v-text-field>
-      <v-data-table :headers="headers" :items="filteredUsuarios" class="elevation-1">
+      <v-data-table :headers="headers" :items="filteredActivos" class="elevation-1">
         <template v-slot:item="{ item }">
           <tr>
             <td>{{ item.ActId }}</td>
@@ -74,7 +74,7 @@
               <v-btn @click="editarUsuario(item.ActId)" class="ma-1 orange darken-1" fab dark small>
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-btn @click="eliminarUsuario(item.ActId)" class="ma-1 red" fab dark small>
+              <v-btn @click="confirmaEliminarActivo(item.ActId)" class="ma-1 red" fab dark small>
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -135,7 +135,7 @@ export default {
   },
   computed: {
     // Búsqueda de activos por todas sus columnas.
-    filteredUsuarios() {
+    filteredActivos() {
       return this.inventario.filter((usuario) => {
         const searchTerm = this.search.toLowerCase();
         for (const key in usuario) {
@@ -180,7 +180,7 @@ export default {
   methods: {
 
     // Carga los datos de los activos
-    cargarDatosTabla() {
+    cargarActivos() {
       axios
         .get('http://localhost:3000/api/inventory')
         .then((response) => {
@@ -246,7 +246,7 @@ export default {
           if (index !== -1) {
             this.inventario[index] = this.nuevoUsuario;
           }
-          this.cargarDatosTabla();
+          this.cargarActivos();
           this.cancelarEdicion();
         })
         .catch((error) => {
@@ -307,7 +307,7 @@ export default {
       this.idActivoAEditar = id;
       this.mostrarFormulario = true;
     },
-    eliminarUsuario(id) {
+    confirmaEliminarActivo(id) {
       // Obtén el activo a eliminar por su ActId
       const activoAEliminar = this.inventario.find((activo) => activo.ActId === id);
       if (activoAEliminar) {
@@ -337,7 +337,7 @@ export default {
           });
       }
     },
-    registrarNuevoUsuario() {
+    registrarNuevoActivo() {
       // Reestablece los errores del formulario
       this.nuevoUsuarioErrores = {
         nombre: false,
@@ -397,7 +397,7 @@ export default {
             observaciones: '',
             idSep: '',
           };
-          this.cargarDatosTabla();
+          this.cargarActivos();
           this.mostrarFormulario = false;
         })
         .catch((error) => {

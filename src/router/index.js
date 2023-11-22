@@ -23,7 +23,7 @@ const routes = [
     name: 'home',
     component: HomeView,
     meta: {
-      requiresAuth: true
+      requiresAuth: false
     }
   },
   {
@@ -31,7 +31,7 @@ const routes = [
     name: 'users',
     component: users,
     meta: {
-      requiresAuth: true
+      requiresAuth: false
     }
   },
   {
@@ -39,7 +39,7 @@ const routes = [
     name: 'inventory',
     component: inventory,
     meta: {
-      requiresAuth: true
+      requiresAuth: false
     }
   },
   {
@@ -47,7 +47,7 @@ const routes = [
     name: 'departments',
     component: departments,
     meta: {
-      requiresAuth: true
+      requiresAuth: false
     }
   },
   {
@@ -55,7 +55,7 @@ const routes = [
     name: 'reports',
     component: reports,
     meta: {
-      requiresAuth: true
+      requiresAuth: false
     }
   },
   {
@@ -63,7 +63,7 @@ const routes = [
     name: 'valesResguardo',
     component: valesResguardo,
     meta: {
-      requiresAuth: true
+      requiresAuth: false
     }
   },
 ]

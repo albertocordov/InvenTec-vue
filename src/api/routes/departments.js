@@ -280,4 +280,104 @@ router.get('/api/combo/areas', async (req, res) => {
   }
 });
 
+router.put('/api/departments/setDepto/:depclave', async (req, res) => {
+  const {
+    depclave
+  } = req.params;
+  const nuevoDepartamento = req.body;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('depdepto', sql.VarChar, nuevoDepartamento.depdepto)
+      .input('depalias', sql.VarChar, nuevoDepartamento.depalias)
+      .input('depclave', sql.Int, depclave)
+      .query(`
+          UPDATE departamentos
+          SET
+            depdepto = @depdepto,
+            depalias = @depalias
+          WHERE depclave = @depclave;
+        `);
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al actualizar el depto: ${error.message}`);
+  }
+});
+
+router.delete('/api/departments/eliminar/:depclave', async (req, res) => {
+  const {
+    depclave
+  } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('depclave', sql.Int, depclave)
+      .query('DELETE FROM departamentos WHERE depclave = @depclave');
+
+    console.log(`Depto eliminado con éxito. depclave: ${depclave}`);
+ 
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al eliminar el Depto: ${error.message}`);
+  }
+});
+
+router.put('/api/departments/setJefe/:jefeid', async (req, res) => {
+  const {
+    jefeid
+  } = req.params;
+  const nuevoJefe = req.body;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('jefenombre', sql.VarChar, nuevoJefe.jefenombre)
+      .input('depclave', sql.Int, nuevoJefe.depclave)
+      .input('jefetipo', sql.Bit, nuevoJefe.jefetipo_desc)
+      .input('jefeid', sql.Int, jefeid)
+      .query(`
+          UPDATE jefes
+          SET
+          jefenombre = @jefenombre,
+          depclave = @depclave, 
+          jefetipo = @jefetipo
+          WHERE jefeid = @jefeid;
+        `);
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al actualizar el jefe: ${error.message}`);
+  }
+});
+
+router.delete('/api/jefes/eliminar/:jefeid', async (req, res) => {
+  const {
+    jefeid
+  } = req.params;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('jefeid', sql.Int, jefeid)
+      .query('DELETE FROM jefes WHERE jefeid = @jefeid');
+
+    console.log(`Jefe eliminado con éxito. jefeid: ${jefeid}`);
+ 
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al eliminar el Depto: ${error.message}`);
+  }
+});
+
 module.exports = router;

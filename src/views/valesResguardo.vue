@@ -32,7 +32,7 @@
               <v-col cols="12">
                 <v-text-field label="FECHA ELABORACION" v-model="datosServidorPublico"></v-text-field>
               </v-col>
-              
+
               <v-col cols="12">
                 <v-list>
                   <v-list-item v-for="(item, index) in activosSeleccionados" :key="index">
@@ -40,7 +40,7 @@
                       <!-- Utiliza v-chip para mostrar cada elemento seleccionado -->
                       <v-chip>
                         {{ item.cant }} - {{ item.caracteristica.noInventario }} - {{ item.usuario }}
-                        <v-btn icon @click="quitarBien(index)">
+                        <v-btn icon @click="quitarActivo(index)">
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </v-chip>
@@ -49,7 +49,7 @@
                 </v-list>
                 <v-data-table :items="activos" :headers="headers" class="elevation-1">
                   <template v-slot:item.agregar="props">
-                    <v-btn icon @click="agregarBien(props.item)">
+                    <v-btn icon @click="agregarActivo(props.item)">
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
                   </template>
@@ -129,9 +129,9 @@ export default {
     };
   },
   methods: {
-    agregarBien(bien) {
+    agregarActivo(bien) {
       this.activosSeleccionados.push(bien);
-    }, quitarBien(index) {
+    }, quitarActivo(index) {
       // Método para quitar un bien de la lista de seleccionados
       this.activosSeleccionados.splice(index, 1);
     },

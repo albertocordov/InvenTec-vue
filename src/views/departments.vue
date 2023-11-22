@@ -5,7 +5,7 @@
             <div class="col-md-6">
                 <!-- Sección de departamentos -->
                 <h2 class="text-center">Departamentos</h2>
-                <v-btn block @click="mostrarModalDepto = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="registroDeptos" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar departamento
                 </v-btn>
 
@@ -21,7 +21,7 @@
                                 <v-btn @click="editarDepartamento(item.ID)" class="ma-1 orange darken-1" fab dark small>
                                     <v-icon>mdi-pencil</v-icon>
                                 </v-btn>
-                                <v-btn @click="eliminarDepartamento(item.id)" class="ma-1 red" fab dark small>
+                                <v-btn @click="confirmaEliminarElemento(item.ID, 1)" class="ma-1 red" fab dark small>
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </td>
@@ -32,7 +32,7 @@
             <div class="col-md-6">
                 <!-- Sección de jefes de departamento -->
                 <h2 class="text-center">Jefes de departamento / área</h2>
-                <v-btn block @click="mostrarModalJefes = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="registroJefes" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar jefe
                 </v-btn>
                 <v-text-field v-model="searchJefe" label="Buscar jefe de departamento / área" append-icon="mdi-magnify"
@@ -48,7 +48,7 @@
                                 <v-btn @click="editarJefe(item.jefeid)" class="ma-1 orange darken-1" fab dark small>
                                     <v-icon>mdi-pencil</v-icon>
                                 </v-btn>
-                                <v-btn @click="eliminarJefe(item.id)" class="ma-1 red" fab dark small>
+                                <v-btn @click="confirmaEliminarElemento(item.jefeid, 2)" class="ma-1 red" fab dark small>
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </td>
@@ -61,7 +61,7 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <h2 class="text-center">Áreas</h2>
-                <v-btn block @click="mostrarModalAreas = true" class="mb-3 green btnagregar" dark>
+                <v-btn block @click="registroAreas" class="mb-3 green btnagregar" dark>
                     <v-icon>mdi-plus</v-icon> Agregar área
                 </v-btn>
                 <v-text-field v-model="searchArea" label="Buscar área" append-icon="mdi-magnify"
@@ -77,7 +77,7 @@
                                 <v-btn @click="editarArea(item.areaid)" class="ma-1 orange darken-1" fab dark small>
                                     <v-icon>mdi-pencil</v-icon>
                                 </v-btn>
-                                <v-btn @click="eliminarArea(item.id)" class="ma-1 red" fab dark small>
+                                <v-btn @click="confirmaEliminarElemento(item.areaid, 3)" class="ma-1 red" fab dark small>
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </td>
@@ -91,7 +91,7 @@
         <v-dialog v-model="mostrarModalDepto" max-width="500">
             <v-card>
                 <v-card-title>
-                    Agregar Departamento
+                    {{ modoEdicion ? 'Editar departamento' : 'Registrar departamento' }}
                 </v-card-title>
                 <v-card-text>
                     <v-text-field v-model="nuevoDepartamento.depdepto" label="Departamento*" outlined
@@ -100,7 +100,9 @@
                         :error="nuevoDepartamentoErrores.depalias"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="blue darken-1" @click="agregarDepartamento">Agregar</v-btn>
+                    <v-btn color="blue darken-1" @click="modoEdicion ? guardarCambiosDepto() : agregarDepartamento()">
+                        {{ modoEdicion ? 'Guardar cambios' : 'Agregar departamento' }}
+                    </v-btn>
                     <v-btn color="red darken-1" @click="mostrarModalDepto = false">Cancelar</v-btn>
                 </v-card-actions>
             </v-card>
@@ -110,7 +112,7 @@
         <v-dialog v-model="mostrarModalJefes" max-width="500">
             <v-card>
                 <v-card-title>
-                    Agregar jefe de departamento / área
+                    {{ modoEdicion ? 'Editar jefe de departamento / área' : 'Agregar jefe de departamento / área' }}
                 </v-card-title>
                 <v-card-text>
                     <v-text-field v-model="nuevoJefe.jefenombre" label="Nombre del Jefe" outlined
@@ -124,7 +126,9 @@
                     </v-radio-group>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="blue darken-1" @click="agregarJefe">Agregar</v-btn>
+                    <v-btn color="blue darken-1" @click="modoEdicion ? guardarCambiosJefe() : agregarJefe()">
+                        {{ modoEdicion ? 'Guardar cambios' : 'Agregar jefe' }}
+                    </v-btn>
                     <v-btn color="red darken-1" @click="mostrarModalJefes = false">Cancelar</v-btn>
                 </v-card-actions>
             </v-card>
@@ -139,7 +143,7 @@
                 <v-card-text>
                     <v-autocomplete v-model="nuevaArea.depdepto" :items="departamentos" label="Seleccionar Departamento"
                         item-text="depdepto" item-value="depclave" outlined :error="nuevaAreaErrores.depdepto"
-                        @input="filtrarEncargadosPorDepartamento"></v-autocomplete>
+                        @input="filtrarJefesPorDepartamento"></v-autocomplete>
                     <v-autocomplete v-model="nuevaArea.jefenombre" :items="managerOptions"
                         label="Seleccionar Encargado del Área" item-text="jefenombre" item-value="jefeid" outlined
                         :error="nuevaAreaErrores.jefenombre"></v-autocomplete>
@@ -147,10 +151,27 @@
                         :error="nuevaAreaErrores.areanombre"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="blue darken-1" @click="modoEdicion ? editarArea() : agregarArea">
-                        {{ modoEdicion ? 'Guardar cambios' : 'Agregar' }}
+                    <v-btn color="blue darken-1" @click="modoEdicion ? guardarCambiosArea() : agregarArea()">
+                        {{ modoEdicion ? 'Guardar cambios' : 'Agregar área' }}
                     </v-btn>
                     <v-btn color="red darken-1" @click="mostrarModalAreas = false">Cancelar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Modal para confirmar la eliminación de un elemento -->
+        <v-dialog v-model="mostrarConfirmacionEliminar" max-width="400">
+            <v-card>
+                <v-card-title class="headline">Confirmar eliminación</v-card-title>
+                <v-card-text>
+                    <div v-if="elementoAEliminar">
+                        ¿Estás seguro de que deseas eliminar el elemento con el ID "{{ elementoEliminar.elementoNombre
+                        }}"?
+                    </div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn @click="mostrarConfirmacionEliminar = false;">Cancelar</v-btn>
+                    <v-btn @click="eliminarElementoSQL" color="red" dark>Eliminar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -159,6 +180,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from "sweetalert2";
 
 export default {
     name: 'departments',
@@ -189,6 +211,11 @@ export default {
         mostrarModalDepto: false,
         mostrarModalJefes: false,
         mostrarModalAreas: false,
+        elementoAEliminar: false,
+        tipoDataTable: 0,
+        elementoEliminar: {
+            elementoNombre: '',
+        },
         nuevoDepartamento: {
             depdepto: '',
             depalias: '',
@@ -202,6 +229,7 @@ export default {
             jefenombre: '',
             departamento: '',
             jefetipo_desc: '',
+            depclave: '',
         },
         nuevoJefeErrores: {
             jefenombre: false,
@@ -230,6 +258,7 @@ export default {
         departmentOptions: [],
         edicionActivaDepto: false,
         modoEdicion: false,
+        mostrarConfirmacionEliminar: false,
 
     }),
     computed: {
@@ -246,11 +275,7 @@ export default {
         },
         filteredJefes() {
             return this.jefes.filter((jefe) => {
-                const searchTerm = this.searchJefes ? this.searchJefes.toLowerCase() : '';
-
-                // Log para depurar
-                console.log('Jefe:', jefe);
-
+                const searchTerm = this.searchJefe.toLowerCase();
                 for (const key in jefe) {
                     if (jefe[key] && jefe[key].toString().toLowerCase().includes(searchTerm)) {
                         return true;
@@ -261,7 +286,7 @@ export default {
         },
         filteredAreas() {
             return this.areas.filter((area) => {
-                const searchTerm = this.searchAreas ? this.searchAreas.toLowerCase() : '';
+                const searchTerm = this.searchArea.toLowerCase();
                 for (const key in area) {
                     if (area[key] && area[key].toString().toLowerCase().includes(searchTerm)) {
                         return true;
@@ -272,7 +297,180 @@ export default {
         },
     },
     methods: {
-        filtrarEncargadosPorDepartamento() {
+        alertaToast(icono, titulo) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-start",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: toast => {
+                    toast.addEventListener("mouseenter", Swal.stopTimer);
+                    toast.addEventListener("mouseleave", Swal.resumeTimer);
+                }
+            });
+
+            Toast.fire({
+                icon: icono,
+                title: titulo
+            });
+        },
+        eliminarElementoSQL() {
+            switch (this.tipoDataTable) {
+                case 1:
+                    axios
+                        .delete(`http://localhost:3000/api/departments/eliminar/${this.elementoEliminar.elementoNombre}`)
+                        .then((response) => {
+                            this.alertaToast("success", "Departamento eliminado");
+
+                            // Elimina el activo de la lista
+                            const index = this.departamentos.findIndex((item) => item.depclave === this.elementoEliminar.elementoNombre);
+                            if (index !== -1) {
+                                this.departamentos.splice(index, 1);
+                            }
+                            this.cargaDatosCombos();
+                        })
+                        .catch((error) => {
+                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado.");
+                            console.error('Error al eliminar el elemento:', error);
+                        });
+                    break;
+                case 2:
+                    axios
+                        .delete(`http://localhost:3000/api/jefes/eliminar/${this.elementoEliminar.elementoNombre}`)
+                        .then((response) => {
+                            this.alertaToast("success", "Jefe eliminado");
+
+                            // Elimina el activo de la lista
+                            const index = this.jefes.findIndex((item) => item.jefeid === this.elementoEliminar.elementoNombre);
+                            if (index !== -1) {
+                                this.jefes.splice(index, 1);
+                            }
+                        })
+                        .catch((error) => {
+                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado.");
+                            console.error('Error al eliminar el elemento:', error);
+                        });
+                    break;
+                case 3:
+                    axios
+                        .delete(`http://localhost:3000/api/areas/eliminar/${this.elementoEliminar.elementoNombre}`)
+                        .then((response) => {
+                            this.alertaToast("success", "Área eliminada");
+
+                            // Elimina el activo de la lista
+                            const index = this.areas.findIndex((item) => item.areaid === this.elementoEliminar.elementoNombre);
+                            if (index !== -1) {
+                                this.areas.splice(index, 1);
+                            }
+                        })
+                        .catch((error) => {
+                            this.alertaToast("warning", "No se puede eliminar el elemento seleccionado.");
+                            console.error('Error al eliminar el elemento:', error);
+                        });
+                    break;
+            }
+            this.mostrarConfirmacionEliminar = false;
+        },
+        confirmaEliminarElemento(id, tipo) {
+            // Obtén el activo a eliminar por su ActId
+            console.log("prueba: " + id);
+            this.tipoDataTable = tipo;
+            this.elementoEliminar.elementoNombre = id;
+            this.elementoAEliminar = true;
+            this.mostrarConfirmacionEliminar = true; // Muestra el cuadro de diálogo de confirmación
+
+        },
+        registroDeptos() {
+            this.nuevoDepartamento = {
+                depdepto: '',
+                depalias: '',
+                nombreEncargado: ''
+            }
+            this.modoEdicion = false;
+            this.mostrarModalDepto = true;
+
+        },
+        registroJefes() {
+            this.nuevoJefe = {
+                jefenombre: '',
+                departamento: '',
+                jefetipo_desc: '',
+            }
+            this.modoEdicion = false;
+            this.mostrarModalJefes = true;
+
+        },
+        registroAreas() {
+            this.nuevaArea = {
+                areaid: '',
+                areanombre: '',
+                jefenombre: '',
+                depdepto: '',
+            },
+                this.modoEdicion = false;
+            this.mostrarModalAreas = true;
+
+        },
+        guardarCambiosDepto() {
+            axios
+                .put(`http://localhost:3000/api/departments/setDepto/${this.idDeptoEditar}`, this.nuevoDepartamento)
+                .then((response) => {
+                    //console.log('Departamento actualizado con éxito:', response.data);
+                    this.alertaToast("success", "Departamento actualizado con éxito.");
+
+                    // Actualiza el departamento en la lista
+                    const index = this.departamentos.findIndex((item) => item.depclave === this.idDeptoEditar);
+                    if (index !== -1) {
+                        this.departamentos[index] = this.nuevoDepartamento;
+                    }
+                    this.cargaDatosDeptos();
+                    this.mostrarModalDepto = false;
+
+                })
+                .catch((error) => {
+                    this.alertaToast("error", "Error al editar depto: " + error);
+                });
+        },
+        guardarCambiosJefe() {
+            axios
+                .put(`http://localhost:3000/api/departments/setJefe/${this.idJefeEditar}`, this.nuevoJefe)
+                .then((response) => {
+                    this.alertaToast("success", "Jefe actualizado con éxito.");
+
+                    // Actualiza el departamento en la lista
+                    const index = this.jefes.findIndex((item) => item.jefeid === this.idJefeEditar);
+                    if (index !== -1) {
+                        this.jefes[index] = this.nuevoJefe;
+                    }
+                    this.cargaDatosJefes();
+                    this.mostrarModalJefes = false;
+
+                })
+                .catch((error) => {
+                    this.alertaToast("error", "Error al editar jefe: " + error);
+                });
+        },
+        guardarCambiosArea() {
+            axios
+                .put(`http://localhost:3000/api/departments/setArea/${this.idAreaEditar}`, this.nuevaArea)
+                .then((response) => {
+                    this.alertaToast("success", "Área actualizada con éxito.");
+
+                    // Actualiza el departamento en la lista
+                    const index = this.areas.findIndex((item) => item.areaid === this.idAreaEditar);
+                    if (index !== -1) {
+                        this.areas[index] = this.nuevaArea;
+                    }
+                    this.cargaDatosAreas();
+                    this.mostrarModalAreas = false;
+
+                })
+                .catch((error) => {
+                    this.alertaToast("error", "Error al editar area: " + error);
+                });
+        },
+        filtrarJefesPorDepartamento() {
             // Filtra los jefes por el departamento seleccionado
             console.log('Departamento seleccionado:', this.nuevaArea.depdepto);
             if (this.nuevaArea.depdepto) {
@@ -282,26 +480,21 @@ export default {
                 this.managerOptions = this.jefesCombo;
             }
         },
-
         editarArea(id) {
-            console.log(id)
+            this.idAreaEditar = id;
             this.cargarAreaPorId(id);
-
-            this.edicionActiva = id !== null;
             this.modoEdicion = true;
             this.mostrarModalAreas = true;
         },
         editarJefe(id) {
-            console.log(id)
+            this.idJefeEditar = id;
             this.cargarJefePorId(id);
-
             this.modoEdicion = true;
             this.mostrarModalJefes = true;
         },
         editarDepartamento(id) {
-            console.log(id)
+            this.idDeptoEditar = id;
             this.cargarDepartamentoPorId(id);
-
             this.modoEdicion = true;
             this.mostrarModalDepto = true;
         },
@@ -310,7 +503,7 @@ export default {
             axios
                 .get(`http://localhost:3000/api/departments/${depClave}`)
                 .then((response) => {
-                    console.log('Datos del depto:', response.data);
+
                     // Carga los datos del activo en el formulario
                     this.nuevoDepartamento.depdepto = response.data[0].Depdepto;
                     this.nuevoDepartamento.depalias = response.data[0].Depalias;
@@ -329,12 +522,16 @@ export default {
             axios
                 .get(`http://localhost:3000/api/jefes/${jefeid}`)
                 .then((response) => {
-                    console.log('Datos del jefe:', response.data);
+
                     // Carga los datos del activo en el formulario
                     this.nuevoJefe.jefeid = response.data[0].jefeid;
                     this.nuevoJefe.jefenombre = response.data[0].jefenombre;
                     this.nuevoJefe.departamento = response.data[0].departamento;
-                    this.nuevoJefe.jefetipo_desc = response.data[0].jefetipo_desc;
+                    this.nuevoJefe.depclave = response.data[0].depclave;
+                    this.nuevoJefe.jefetipo_desc = response.data[0].jefetipo;
+
+                    console.log("Este es: " + this.nuevoJefe.depclave);
+                    console.log("Este es2: " + this.nuevoJefe.jefetipo_desc);
 
                     // Buscar el departamento correspondiente en la lista de departamentos
                     const departamentoSeleccionado = this.departamentos.find(
@@ -356,7 +553,7 @@ export default {
             axios
                 .get(`http://localhost:3000/api/areas/${depClave}`)
                 .then((response) => {
-                    console.log('Datos del depto:', response.data);
+
                     // Carga los datos del activo en el formulario
                     this.nuevaArea.areaid = response.data[0].areaid;
                     this.nuevaArea.areanombre = response.data[0].areanombre;
@@ -397,16 +594,18 @@ export default {
             axios
                 .post('http://localhost:3000/api/departments/registraDepto', this.nuevoDepartamento)
                 .then((response) => {
-                    console.log('Usuario registrado en SQL con éxito:', response.data);
+                    this.alertaToast("success", "Departamento registrado.");
                     this.nuevoDepartamento = {
                         depdepto: '',
                         depalias: ''
                     };
-                    //this.cargarDatosTabla();
+                    this.cargaDatosDeptos();
+                    this.cargaDatosCombos();
                 })
                 .catch((error) => {
-                    console.log('Error al registrar el depto en SQL:', error);
+                    this.alertaToast("error", "Error al registrar depto: " + error);
                 });
+
             this.nuevoDepartamento.depdepto = '';
             this.nuevoDepartamento.depalias = '';
             this.mostrarModalDepto = false;
@@ -434,15 +633,17 @@ export default {
             axios
                 .post('http://localhost:3000/api/jefes/registraJefe', this.nuevoJefe)
                 .then((response) => {
-                    console.log('jefe registrado en SQL con éxito:', response.data);
+                    this.alertaToast("success", "Jefe registrado.");
                     this.nuevoJefe = {
                         jefeNombre: '',
                         jefetipo_desc: '',
                         departamento: ''
                     };
+                    this.cargaDatosJefes();
+                    this.cargaDatosDeptos();
                 })
                 .catch((error) => {
-                    console.log('Error al registrar el jefe en SQL:', error);
+                    this.alertaToast("error", "Error al registrar jefe: " + error);
                 });
 
             this.nuevoJefe.jefenombre = '';
@@ -478,7 +679,8 @@ export default {
             axios
                 .post('http://localhost:3000/api/areas/registraArea', this.nuevaArea)
                 .then((response) => {
-                    console.log('Area registrada en SQL con éxito:', response.data);
+                    this.alertaToast("success", "Área registrada.");
+                    this.cargaDatosAreas();
                     this.nuevaArea = {
                         areaid: '',
                         areanombre: '',
@@ -487,7 +689,7 @@ export default {
                     };
                 })
                 .catch((error) => {
-                    console.log('Error al registrar el depto en SQL:', error);
+                    this.alertaToast("error", "Error al registrar area: " + error);
                 });
 
             this.managerOptions = this.jefesCombo;
@@ -496,61 +698,71 @@ export default {
             this.nuevaArea.depdepto = '';
             this.mostrarModalAreas = false;
         },
+        cargaDatosDeptos() {
+            axios.get('http://localhost:3000/api/departments')
+                .then(response => {
+                    console.log(response.data)
+                    this.departments = response.data;
+                })
+                .catch(error => {
+                    console.error('Error al cargar departments', error);
+                });
+        },
+        cargaDatosJefes() {
+            axios.get('http://localhost:3000/api/jefes')
+                .then(response => {
+                    this.jefes = response.data;
+                })
+                .catch(error => {
+                    console.error('Error al cargar jefes', error);
+                });
+        },
+        cargaDatosAreas() {
+            axios.get('http://localhost:3000/api/areas')
+                .then(response => {
+                    this.areas = response.data;
+                })
+                .catch(error => {
+                    console.error('Error al cargar areas', error);
+                });
+        },
+        cargaDatosCombos() {
+            // Combo deptos
+            axios.get('http://localhost:3000/api/combo/departments')
+                .then(response => {
+                    this.departamentos = response.data;
+                })
+                .catch(error => {
+                    console.error('Error al cargar la lista de departamentos', error);
+                });
+
+            // Combo de jefes
+            axios.get('http://localhost:3000/api/combo/jefes')
+                .then(response => {
+                    this.jefesCombo = response.data;
+                })
+                .catch(error => {
+                    console.error('Error al cargar la lista de jefes', error);
+                });
+        },
     },
     created() {
+        // Jefe area seleccionado por default.
         this.nuevoJefe.jefetipo_desc = false;
 
         // DataTable de departamentos
-        axios.get('http://localhost:3000/api/departments')
-            .then(response => {
-                console.log(response.data)
-                this.departments = response.data;
-            })
-            .catch(error => {
-                console.error('Error al cargar departments', error);
-            });
+        this.cargaDatosDeptos();
 
         // DataTable de jefes
-        axios.get('http://localhost:3000/api/jefes')
-            .then(response => {
-                console.log(response.data)
-                this.jefes = response.data.map(jefe => ({
-                    jefeid: jefe.jefeid,
-                    jefenombre: jefe.jefenombre,
-                    departamento: jefe.departamento,
-                    jefetipo_desc: jefe.jefetipo_desc,
-                }));
-            })
-            .catch(error => {
-                console.error('Error al cargar jefes', error);
-            });
+        this.cargaDatosJefes();
 
         // DataTable de areas
-        axios.get('http://localhost:3000/api/areas')
-            .then(response => {
-                console.log(response.data)
-                this.areas = response.data;
-            })
-            .catch(error => {
-                console.error('Error al cargar areas', error);
-            });
+        this.cargaDatosAreas();
 
-        axios.get('http://localhost:3000/api/combo/departments')
-            .then(response => {
-                this.departamentos = response.data;
-            })
-            .catch(error => {
-                console.error('Error al cargar la lista de departamentos', error);
-            });
+        // Combos
+        this.cargaDatosCombos();
 
-        // Combo de jefes
-        axios.get('http://localhost:3000/api/combo/jefes')
-            .then(response => {
-                this.jefesCombo = response.data;
-            })
-            .catch(error => {
-                console.error('Error al cargar la lista de jefes', error);
-            });
+
     },
 };
 </script>

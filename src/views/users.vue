@@ -6,7 +6,7 @@
 
                 <!-- Botón para habilitar modal de registro de usuario -->
                 <template v-slot:activator="{ on }">
-                    <v-btn @click="mostrarFormulario = true" class="mb-3 green" dark>
+                    <v-btn block @click="mostrarFormulario = true" class="mb-3 green" dark>
                         <v-icon>mdi-plus</v-icon> Agregar Usuario
                     </v-btn>
                 </template>

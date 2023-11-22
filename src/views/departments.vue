@@ -6,6 +6,7 @@
                 <!-- Sección de departamentos -->
                 <h2 class="text-center">Departamentos</h2>
                 <v-btn block @click="registroDeptos" class="mb-3 green btnagregar" dark>
+
                     <v-icon>mdi-plus</v-icon> Agregar departamento
                 </v-btn>
 
@@ -768,14 +769,23 @@ export default {
 </script>
   
 <style>
-.btnagregar {
-    margin-top: 15px;
+
+.btnagregar{
+margin-top: 15px;
 
 }
 
 .entrar {
     animation: entrada 0.7s ease;
 }
+
+@media (max-width: 960px) {
+
+.btnagregardepart {
+    margin-top: 53.5px;
+}
+}
+
 
 @keyframes entrada {
     from {
@@ -786,4 +796,6 @@ export default {
         opacity: 100%;
     }
 }
+
+
 </style>

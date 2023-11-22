@@ -239,11 +239,11 @@ export default {
 <style scoped>
 .login-container {
     background: linear-gradient(to bottom, #d64ff7, #4a43df);
-    min-height: 100vh;
+    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 10px;
 }
 
 .loader {

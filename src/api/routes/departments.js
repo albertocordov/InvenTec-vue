@@ -204,7 +204,8 @@ router.get('/api/areas/:areaid', async (req, res) => {
         A.areanombre,
         J.jefenombre,
         D.depdepto,
-        D.depclave
+        D.depclave,
+        J.jefeid
       FROM areas A
       JOIN jefes J ON A.jefeid = J.jefeid
       JOIN departamentos D ON A.depclave = D.depclave

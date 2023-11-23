@@ -322,7 +322,7 @@ router.delete('/api/departments/eliminar/:depclave', async (req, res) => {
       .query('DELETE FROM departamentos WHERE depclave = @depclave');
 
     console.log(`Depto eliminado con éxito. depclave: ${depclave}`);
- 
+
     res.json(result);
   } catch (error) {
     console.error(error);
@@ -373,7 +373,7 @@ router.delete('/api/jefes/eliminar/:jefeid', async (req, res) => {
       .query('DELETE FROM jefes WHERE jefeid = @jefeid');
 
     console.log(`Jefe eliminado con éxito. jefeid: ${jefeid}`);
- 
+
     res.json(result);
   } catch (error) {
     console.error(error);
@@ -394,11 +394,47 @@ router.delete('/api/areas/eliminar/:areaid', async (req, res) => {
       .query('DELETE FROM areas WHERE areaid = @areaid');
 
     console.log(`Depto eliminado con éxito. areaid: ${areaid}`);
- 
+
     res.json(result);
   } catch (error) {
     console.error(error);
     res.status(500).send(`Error al eliminar el area: ${error.message}`);
+  }
+});
+
+router.put('/api/departments/setArea/:areaid', async (req, res) => {
+  const {
+    areaid
+  } = req.params;
+  const nuevaArea = req.body;
+  const jefeId = nuevaArea.jefenombre.jefeid === undefined ?
+    nuevaArea.jefenombre :
+    nuevaArea.jefenombre.jefeid;
+
+  const depclave = nuevaArea.depdepto.depclave === undefined ?
+    nuevaArea.depdepto :
+    nuevaArea.depdepto.depclave;
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input('areanombre', sql.VarChar, nuevaArea.areanombre)
+      .input('jefeid', sql.Int, jefeId)
+      .input('depclave', sql.Int, depclave)
+      .input('areaid', sql.Int, areaid)
+      .query(`
+          UPDATE areas
+          SET
+          areanombre = @areanombre,
+          jefeid = @jefeid, 
+          depclave = @depclave
+          WHERE areaid = @areaid;
+        `);
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error al actualizar el area: ${error.message}`);
   }
 });
 

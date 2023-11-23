@@ -241,6 +241,7 @@ export default {
             areaid: '',
             areanombre: '',
             jefenombre: '',
+            jefeid: '',
             depdepto: '',
         },
         nuevaAreaErrores: {
@@ -472,8 +473,12 @@ export default {
                 });
         },
         async filtrarJefesPorDepartamento() {
+            const depto = this.nuevaArea.depdepto.depclave === undefined ?
+                this.nuevaArea.depdepto :
+                this.nuevaArea.depdepto.depclave;
+
             if (this.nuevaArea.depdepto) {
-                this.managerOptions = this.jefesCombo.filter(jefe => jefe.depclave === this.nuevaArea.depdepto.depclave);
+                this.managerOptions = this.jefesCombo.filter(jefe => jefe.depclave === depto);
             }
         },
         editarArea(id) {

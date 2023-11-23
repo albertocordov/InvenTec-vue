@@ -21,7 +21,7 @@
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
           <h2>Total de activos por departamento</h2>
-          <v-select label="Seleccionar" :items="opciones"></v-select>
+          <v-select label="Seleccionar" :items="opciones" disabled></v-select>
           <v-btn @click="generarPDF(2)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
             Generar PDF
@@ -39,7 +39,28 @@
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
           <h2>Inventario por fecha</h2>
-          <v-select label="Seleccionar" :items="opciones"></v-select>
+          <v-menu
+            v-model="menuFecha"
+            :close-on-content-click="false"
+            :nudge-right="40"
+            transition="scale-transition"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                v-model="fechaSeleccionada"
+                label="Seleccionar Fecha"
+                readonly
+                v-on="on"
+                v-bind="attrs"
+              ></v-text-field>
+            </template>
+            <v-date-picker
+              v-model="fechaSeleccionada"
+              locale="es"
+              no-title
+              scrollable
+            ></v-date-picker>
+          </v-menu>
           <v-btn @click="generarPDF(3)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
             Generar PDF

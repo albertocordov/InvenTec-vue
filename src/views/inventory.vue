@@ -153,7 +153,6 @@ export default {
     // Obtener la lista de todas las áreas
     axios.get('http://localhost:3000/api/combo/areas')
       .then(response => {
-        console.log(response.data);
         this.areas = response.data;
       })
       .catch(error => {
@@ -259,7 +258,6 @@ export default {
       axios
         .put(`http://localhost:3000/api/inventory/actualizar/${this.idActivoAEditar}`, this.nuevoUsuario)
         .then((response) => {
-          console.log('Activo actualizado con éxito:', response.data);
           // Actualiza el activo en la lista
           const index = this.inventario.findIndex((item) => item.ActId === this.idActivoAEditar);
           if (index !== -1) {
@@ -344,7 +342,6 @@ export default {
         axios
           .delete(`http://localhost:3000/api/inventory/eliminar/${this.activoAEliminar.ActId}`)
           .then((response) => {
-            console.log(`Activo eliminado con éxito. ActId: ${this.activoAEliminar.ActId}`);
             // Elimina el activo de la lista
             const index = this.inventario.findIndex((item) => item.ActId === this.activoAEliminar.ActId);
             if (index !== -1) {
@@ -401,7 +398,6 @@ export default {
       axios
         .post('http://localhost:3000/api/inventory/registra', this.nuevoUsuario)
         .then((response) => {
-          console.log('Activo registrado con éxito:', response.data);
           this.inventario.push(this.nuevoUsuario);
           this.nuevoUsuario = {
             idSep: '',

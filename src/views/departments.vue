@@ -241,6 +241,7 @@ export default {
             areaid: '',
             areanombre: '',
             jefenombre: '',
+            jefeid: '',
             depdepto: '',
         },
         nuevaAreaErrores: {
@@ -377,7 +378,6 @@ export default {
         },
         confirmaEliminarElemento(id, tipo) {
             // Obtén el activo a eliminar por su ActId
-            console.log("prueba: " + id);
             this.tipoDataTable = tipo;
             this.elementoEliminar.elementoNombre = id;
             this.elementoAEliminar = true;
@@ -419,7 +419,6 @@ export default {
             axios
                 .put(`http://localhost:3000/api/departments/setDepto/${this.idDeptoEditar}`, this.nuevoDepartamento)
                 .then((response) => {
-                    //console.log('Departamento actualizado con éxito:', response.data);
                     this.alertaToast("success", "Departamento actualizado con éxito.");
 
                     // Actualiza el departamento en la lista
@@ -473,14 +472,13 @@ export default {
                     this.alertaToast("error", "Error al editar area: " + error);
                 });
         },
-        filtrarJefesPorDepartamento() {
-            // Filtra los jefes por el departamento seleccionado
-            console.log('Departamento seleccionado:', this.nuevaArea.depdepto);
+        async filtrarJefesPorDepartamento() {
+            const depto = this.nuevaArea.depdepto.depclave === undefined ?
+                this.nuevaArea.depdepto :
+                this.nuevaArea.depdepto.depclave;
+
             if (this.nuevaArea.depdepto) {
-                this.managerOptions = this.jefesCombo.filter(jefe => jefe.depclave === this.nuevaArea.depdepto);
-            } else {
-                // Si no hay departamento seleccionado, muestra todos los encargados
-                this.managerOptions = this.jefesCombo;
+                this.managerOptions = this.jefesCombo.filter(jefe => jefe.depclave === depto);
             }
         },
         editarArea(id) {
@@ -502,7 +500,6 @@ export default {
             this.mostrarModalDepto = true;
         },
         cargarDepartamentoPorId(depClave) {
-            console.log(depClave)
             axios
                 .get(`http://localhost:3000/api/departments/${depClave}`)
                 .then((response) => {
@@ -521,7 +518,6 @@ export default {
                 });
         },
         cargarJefePorId(jefeid) {
-            console.log(jefeid)
             axios
                 .get(`http://localhost:3000/api/jefes/${jefeid}`)
                 .then((response) => {
@@ -532,9 +528,6 @@ export default {
                     this.nuevoJefe.departamento = response.data[0].departamento;
                     this.nuevoJefe.depclave = response.data[0].depclave;
                     this.nuevoJefe.jefetipo_desc = response.data[0].jefetipo;
-
-                    console.log("Este es: " + this.nuevoJefe.depclave);
-                    console.log("Este es2: " + this.nuevoJefe.jefetipo_desc);
 
                     // Buscar el departamento correspondiente en la lista de departamentos
                     const departamentoSeleccionado = this.departamentos.find(
@@ -552,22 +545,27 @@ export default {
                 });
         },
         cargarAreaPorId(depClave) {
-            console.log(depClave)
             axios
                 .get(`http://localhost:3000/api/areas/${depClave}`)
-                .then((response) => {
+                .then(async (response) => {
 
                     // Carga los datos del activo en el formulario
                     this.nuevaArea.areaid = response.data[0].areaid;
                     this.nuevaArea.areanombre = response.data[0].areanombre;
-                    this.nuevaArea.jefenombre = response.data[0].jefenombre;
 
                     // Buscar el departamento correspondiente en la lista de departamentos
                     const departamentoSeleccionado = this.departamentos.find(
                         (departamento) => departamento.depclave === response.data[0].depclave
                     );
 
+                    const encargado = this.jefesCombo.find(
+                        (jefe) => jefe.jefeid === response.data[0].jefeid
+                    );
+
                     this.nuevaArea.depdepto = departamentoSeleccionado || null;
+                    this.nuevaArea.jefenombre = encargado || null;
+
+                    await this.filtrarJefesPorDepartamento();
 
                     // Activa el modo de edición y muestra el formulario
                     this.edicionActiva = true;
@@ -705,7 +703,6 @@ export default {
         cargaDatosDeptos() {
             axios.get('http://localhost:3000/api/departments')
                 .then(response => {
-                    console.log(response.data)
                     this.departments = response.data;
                 })
                 .catch(error => {
@@ -772,9 +769,8 @@ export default {
 </script>
   
 <style>
-
-.btnagregar{
-margin-top: 15px;
+.btnagregar {
+    margin-top: 15px;
 
 }
 
@@ -784,9 +780,9 @@ margin-top: 15px;
 
 @media (max-width: 960px) {
 
-.btnagregardepart {
-    margin-top: 53.5px;
-}
+    .btnagregardepart {
+        margin-top: 53.5px;
+    }
 }
 
 
@@ -799,6 +795,4 @@ margin-top: 15px;
         opacity: 100%;
     }
 }
-
-
 </style>

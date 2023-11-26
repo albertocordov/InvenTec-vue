@@ -6,22 +6,21 @@
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
           <h2>Activos por departamento</h2>
-          <v-select label="Seleccionar" :items="opciones"></v-select>
-          <v-btn @click="generarPDF(1)" color="red lighten-1">
+          <v-select label="Seleccionar departamento*" :items="departamentos" item-text="depdepto" item-value="depclave""></v-select>
+            <v-btn @click=" generarPDF(1)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
             Generar PDF
-          </v-btn>
-          <v-btn @click="generarXLS(1)" color="green lighten-1">
-            <v-icon left color="white">mdi-file-excel</v-icon>
-            Generar XLS
-          </v-btn>
+            </v-btn>
+            <v-btn @click="generarXLS(1)" color="green lighten-1">
+              <v-icon left color="white">mdi-file-excel</v-icon>
+              Generar XLS
+            </v-btn>
         </div>
       </v-col>
 
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
-          <h2>Total de activos por departamento</h2>
-          <v-select label="Seleccionar" :items="opciones" disabled></v-select>
+          <h2>Total de activos</h2>
           <v-btn @click="generarPDF(2)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
             Generar PDF
@@ -39,27 +38,14 @@
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
           <h2>Inventario por fecha</h2>
-          <v-menu
-            v-model="menuFecha"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-          >
+          <v-menu v-model="menuFecha" :close-on-content-click="false" :nudge-right="40" transition="scale-transition">
             <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="fechaSeleccionada"
-                label="Seleccionar Fecha"
-                readonly
-                v-on="on"
-                v-bind="attrs"
-              ></v-text-field>
+              <v-text-field v-model="fechaSeleccionada" label="Seleccionar fecha*" readonly v-on="on"
+                v-bind="attrs"></v-text-field>
+              <v-select label="Seleccionar departamento*" :items="departamentos" item-text="depdepto"
+                item-value="depclave"></v-select>
             </template>
-            <v-date-picker
-              v-model="fechaSeleccionada"
-              locale="es"
-              no-title
-              scrollable
-            ></v-date-picker>
+            <v-date-picker v-model="fechaSeleccionada" locale="es" no-title scrollable></v-date-picker>
           </v-menu>
           <v-btn @click="generarPDF(3)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
@@ -75,7 +61,8 @@
       <v-col cols="12" md="6" lg="5">
         <div class="report-box">
           <h2>Impresiones por departamento</h2>
-          <v-select label="Seleccionar" :items="opciones"></v-select>
+          <v-select label="Seleccionar departamento*" :items="departamentos" item-text="depdepto"
+            item-value="depclave"></v-select>
           <v-btn @click="generarPDF(4)" color="red lighten-1">
             <v-icon left color="white">mdi-file-pdf-box</v-icon>
             Generar PDF
@@ -91,11 +78,15 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from "sweetalert2";
+
 export default {
   name: 'reports',
   data: () => ({
     activos: ['Activos por área', 'Opción 2', 'Opción 3', 'Opción 4'],
     opciones: ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'],
+    departamentos: [],
   }),
   methods: {
     generarPDF(numero) {
@@ -106,6 +97,16 @@ export default {
       // Lógica para generar XLS en función del cuadro número
       console.log('Generar XLS para Cuadro ' + numero);
     },
+  },
+  created() {
+    // Obtener la lista de departamentos
+    axios.get('http://localhost:3000/api/combo/departments')
+      .then(response => {
+        this.departamentos = response.data;
+      })
+      .catch(error => {
+        console.error('Error al cargar la lista de departamentos', error);
+      });
   },
 };
 </script>
@@ -119,17 +120,16 @@ export default {
 }
 
 .entrar {
-    animation: entrada 0.7s ease;
+  animation: entrada 0.7s ease;
 }
 
 @keyframes entrada {
-    from {
-        opacity: 0;
-    }
+  from {
+    opacity: 0;
+  }
 
-    to {
-        opacity: 100%;
-    }
+  to {
+    opacity: 100%;
+  }
 }
-
 </style>

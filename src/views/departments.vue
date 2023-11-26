@@ -1,92 +1,108 @@
 <template>
     <div class="container mt-2 entrar">
-        <h1 class="text-center">Departamentos</h1>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <!-- Sección de departamentos -->
-                <h2 class="text-center">Departamentos</h2>
-                <v-btn block @click="registroDeptos" class="mb-3 green btnagregar" dark>
+        <!-- <h1 class="text-center">Administración de departamentos</h1> -->
 
-                    <v-icon>mdi-plus</v-icon> Agregar departamento
-                </v-btn>
+        <v-tabs v-model="currentTab"  color="deep-purple-accent-4"
+      align-tabs="center">
+            <v-tab v-for="(tab, index) in tabs" :key="index">
+                {{ tab }}
+            </v-tab>
 
-                <v-text-field v-model="searchDepartment" label="Buscar departamento" append-icon="mdi-magnify"
-                    class="mb-3"></v-text-field>
-                <v-data-table :headers="departmentHeaders" :items="filteredDepartments" class="elevation-1">
-                    <template v-slot:item="{ item }">
-                        <tr>
-                            <td>{{ item.ID }}</td>
-                            <td>{{ item.Departamento }}</td>
-                            <td>{{ item.NombreEncargado }}</td>
-                            <td>
-                                <v-btn @click="editarDepartamento(item.ID)" class="ma-1 orange darken-1" fab dark small>
-                                    <v-icon>mdi-pencil</v-icon>
-                                </v-btn>
-                                <v-btn @click="confirmaEliminarElemento(item.ID, 1)" class="ma-1 red" fab dark small>
-                                    <v-icon>mdi-delete</v-icon>
-                                </v-btn>
-                            </td>
-                        </tr>
-                    </template>
-                </v-data-table>
-            </div>
-            <div class="col-md-6">
-                <!-- Sección de jefes de departamento -->
-                <h2 class="text-center">Jefes de departamento / área</h2>
-                <v-btn block @click="registroJefes" class="mb-3 green btnagregar" dark>
-                    <v-icon>mdi-plus</v-icon> Agregar jefe
-                </v-btn>
-                <v-text-field v-model="searchJefe" label="Buscar jefe de departamento / área" append-icon="mdi-magnify"
-                    class="mb-3"></v-text-field>
-                <v-data-table :headers="JefesHeaders" :items="filteredJefes" class="elevation-1">
-                    <template v-slot:item="{ item }">
-                        <tr>
-                            <td>{{ item.jefeid }}</td>
-                            <td>{{ item.jefenombre }}</td>
-                            <td>{{ item.departamento }}</td>
-                            <td>{{ item.jefetipo_desc }}</td>
-                            <td>
-                                <v-btn @click="editarJefe(item.jefeid)" class="ma-1 orange darken-1" fab dark small>
-                                    <v-icon>mdi-pencil</v-icon>
-                                </v-btn>
-                                <v-btn @click="confirmaEliminarElemento(item.jefeid, 2)" class="ma-1 red" fab dark small>
-                                    <v-icon>mdi-delete</v-icon>
-                                </v-btn>
-                            </td>
-                        </tr>
-                    </template>
-                </v-data-table>
-            </div>
-        </div>
+            <v-tab-item v-for="(tab, index) in tabs" :key="index">
+                <v-card>
+                    <v-card-text>
+                        <div v-if="index === 0">
+                            <!-- Sección de departamentos -->
+                            <h2 class="text-center">Departamentos</h2>
+                            <v-btn @click="registroDeptos" class="mb-3 green btnagregar" dark>
+                                <v-icon>mdi-plus</v-icon> Agregar departamento
+                            </v-btn>
+                            <v-text-field v-model="searchDepartment" label="Buscar departamento" append-icon="mdi-magnify"
+                                class="mb-3"></v-text-field>
+                            <v-data-table :headers="departmentHeaders" :items="filteredDepartments" class="elevation-1">
+                                <template v-slot:item="{ item }">
+                                    <tr>
+                                        <td>{{ item.ID }}</td>
+                                        <td>{{ item.Departamento }}</td>
+                                        <td>{{ item.NombreEncargado }}</td>
+                                        <td>
+                                            <v-btn @click="editarDepartamento(item.ID)" class="ma-1 orange darken-1" fab
+                                                dark small>
+                                                <v-icon>mdi-pencil</v-icon>
+                                            </v-btn>
+                                            <v-btn @click="confirmaEliminarElemento(item.ID, 1)" class="ma-1 red" fab dark
+                                                small>
+                                                <v-icon>mdi-delete</v-icon>
+                                            </v-btn>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </v-data-table>
+                        </div>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <h2 class="text-center">Áreas</h2>
-                <v-btn block @click="registroAreas" class="mb-3 green btnagregar" dark>
-                    <v-icon>mdi-plus</v-icon> Agregar área
-                </v-btn>
-                <v-text-field v-model="searchArea" label="Buscar área" append-icon="mdi-magnify"
-                    class="mb-3"></v-text-field>
-                <v-data-table :headers="areaHeaders" :items="filteredAreas" class="elevation-1">
-                    <template v-slot:item="{ item }">
-                        <tr>
-                            <td>{{ item.areaid }}</td>
-                            <td>{{ item.areanombre }}</td>
-                            <td>{{ item.jefenombre }}</td>
-                            <td>{{ item.depdepto }}</td>
-                            <td>
-                                <v-btn @click="editarArea(item.areaid)" class="ma-1 orange darken-1" fab dark small>
-                                    <v-icon>mdi-pencil</v-icon>
-                                </v-btn>
-                                <v-btn @click="confirmaEliminarElemento(item.areaid, 3)" class="ma-1 red" fab dark small>
-                                    <v-icon>mdi-delete</v-icon>
-                                </v-btn>
-                            </td>
-                        </tr>
-                    </template>
-                </v-data-table>
-            </div>
-        </div>
+                        <div v-else-if="index === 1">
+                            <!-- Sección de jefes de departamento -->
+                            <h2 class="text-center">Jefes de departamento / área</h2>
+                            <v-btn @click="registroJefes" class="mb-3 green btnagregar" dark>
+                                <v-icon>mdi-plus</v-icon> Agregar jefe
+                            </v-btn>
+                            <v-text-field v-model="searchJefe" label="Buscar jefe de departamento / área"
+                                append-icon="mdi-magnify" class="mb-3"></v-text-field>
+                            <v-data-table :headers="JefesHeaders" :items="filteredJefes" class="elevation-1">
+                                <template v-slot:item="{ item }">
+                                    <tr>
+                                        <td>{{ item.jefeid }}</td>
+                                        <td>{{ item.jefenombre }}</td>
+                                        <td>{{ item.departamento }}</td>
+                                        <td>{{ item.jefetipo_desc }}</td>
+                                        <td>
+                                            <v-btn @click="editarJefe(item.jefeid)" class="ma-1 orange darken-1" fab dark
+                                                small>
+                                                <v-icon>mdi-pencil</v-icon>
+                                            </v-btn>
+                                            <v-btn @click="confirmaEliminarElemento(item.jefeid, 2)" class="ma-1 red" fab
+                                                dark small>
+                                                <v-icon>mdi-delete</v-icon>
+                                            </v-btn>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </v-data-table>
+                        </div>
+
+                        <div v-else-if="index === 2">
+                            <!-- Sección de áreas -->
+                            <h2 class="text-center">Áreas</h2>
+                            <v-btn @click="registroAreas" class="mb-3 green btnagregar" dark>
+                                <v-icon>mdi-plus</v-icon> Agregar área
+                            </v-btn>
+                            <v-text-field v-model="searchArea" label="Buscar área" append-icon="mdi-magnify"
+                                class="mb-3"></v-text-field>
+                            <v-data-table :headers="areaHeaders" :items="filteredAreas" class="elevation-1">
+                                <template v-slot:item="{ item }">
+                                    <tr>
+                                        <td>{{ item.areaid }}</td>
+                                        <td>{{ item.areanombre }}</td>
+                                        <td>{{ item.jefenombre }}</td>
+                                        <td>{{ item.depdepto }}</td>
+                                        <td>
+                                            <v-btn @click="editarArea(item.areaid)" class="ma-1 orange darken-1" fab dark
+                                                small>
+                                                <v-icon>mdi-pencil</v-icon>
+                                            </v-btn>
+                                            <v-btn @click="confirmaEliminarElemento(item.areaid, 3)" class="ma-1 red" fab
+                                                dark small>
+                                                <v-icon>mdi-delete</v-icon>
+                                            </v-btn>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </v-data-table>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-tab-item>
+        </v-tabs>
 
         <!-- Modal para agregar departamentos -->
         <v-dialog v-model="mostrarModalDepto" max-width="500">
@@ -186,6 +202,8 @@ import Swal from "sweetalert2";
 export default {
     name: 'departments',
     data: () => ({
+        currentTab: 0,
+        tabs: ['Departamentos', 'Jefes de departamento', 'Áreas'],
         departmentHeaders: [
             { text: 'ID', value: 'ID' },
             { text: 'Departamento', value: 'Departamento' },
@@ -794,5 +812,4 @@ export default {
     to {
         opacity: 100%;
     }
-}
-</style>
+}</style>

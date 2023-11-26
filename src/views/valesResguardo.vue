@@ -2,51 +2,52 @@
   <v-container fluid>
     <v-row>
       <v-col cols="12">
-        <v-card>
+        <v-card class="pa-4">
           <v-card-title>
-            <h3>VALE ÚNICO DE RESGUARDO DE BIENES MUEBLES</h3>
+            <h3 class="mb-0">VALE ÚNICO DE RESGUARDO DE BIENES MUEBLES</h3>
           </v-card-title>
           <v-card-text>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="4" lg="3">
                 <v-text-field label="UNIDAD RESPONSABLE" v-model="unidadResponsable"></v-text-field>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="4" lg="3">
                 <v-text-field label="FECHA" v-model="fecha"></v-text-field>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="4" lg="3">
                 <v-text-field label="ÁREA" v-model="area"></v-text-field>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12" sm="6" md="4" lg="3">
                 <v-text-field label="CENTRO DE TRABAJO" v-model="centroTrabajo"></v-text-field>
               </v-col>
               <v-col cols="12">
                 <v-text-field label="DATOS DEL SERVIDOR PÚBLICO" v-model="datosServidorPublico"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="NOMRBE" v-model="datosServidorPublico"></v-text-field>
+                <v-text-field label="NOMBRE" v-model="nombre"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="CURP" v-model="datosServidorPublico"></v-text-field>
+                <v-text-field label="CURP" v-model="curp"></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="FECHA ELABORACION" v-model="datosServidorPublico"></v-text-field>
+                <v-text-field label="FECHA ELABORACION" v-model="fechaElaboracion"></v-text-field>
               </v-col>
 
-              <v-col cols="12">
+              <v-col cols="4">
                 <v-list>
                   <v-list-item v-for="(item, index) in activosSeleccionados" :key="index">
                     <v-list-item-content>
-                      <!-- Utiliza v-chip para mostrar cada elemento seleccionado -->
-                      <v-chip>
-                        {{ item.cant }} - {{ item.caracteristica.noInventario }} - {{ item.usuario }}
-                        <v-btn icon @click="quitarActivo(index)">
+                      <v-chip class="custom-chip custom-v-chip" color="#9575cd">
+                        {{ item.caracteristica.nombre }}
+                        <v-btn icon @click="quitarActivo(index)" class="ml-auto">
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </v-chip>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
+              </v-col>
+                <v-col cols="12">
                 <v-data-table :items="activos" :headers="headers" class="elevation-1">
                   <template v-slot:item.agregar="props">
                     <v-btn icon @click="agregarActivo(props.item)">
@@ -67,10 +68,11 @@
     </v-row>
   </v-container>
 </template>
-
 <script>
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import Swal from "sweetalert2";
+
 export default {
   name: "ValeResguardoBienes",
   data() {
@@ -130,7 +132,14 @@ export default {
   },
   methods: {
     agregarActivo(bien) {
+      const activoExistente = this.activosSeleccionados.find(a => a.caracteristica.nombre === bien.caracteristica.nombre);
+
+    if (!activoExistente) {
       this.activosSeleccionados.push(bien);
+    } else {
+      // Muestra un mensaje de error o toma alguna otra acción
+      this.alertaToast("warning", "El activo ya ha sido agregado");
+    }
     }, quitarActivo(index) {
       // Método para quitar un bien de la lista de seleccionados
       this.activosSeleccionados.splice(index, 1);
@@ -168,7 +177,40 @@ export default {
         theme: "grid"
       });
       doc.save("informe.pdf");
-    }
+    },
+    alertaToast(icono, titulo) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-start",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: toast => {
+                    toast.addEventListener("mouseenter", Swal.stopTimer);
+                    toast.addEventListener("mouseleave", Swal.resumeTimer);
+                }
+            });
+
+            Toast.fire({
+                icon: icono,
+                title: titulo
+            });
+        }
   }
 };
 </script>
+
+<style scoped>
+.custom-chip.custom-v-chip {
+  border-radius: 20px !important; /* Usa !important para asegurar que sobrescriba las reglas predeterminadas */
+  font-size: 18px !important;
+  width: 50% !important;
+  margin-bottom: 8px !important;
+  height: 50px !important;
+}
+
+/* Alinea el botón al final del chip */
+.v-btn.ml-auto {
+  margin-left: auto;
+}
+</style>

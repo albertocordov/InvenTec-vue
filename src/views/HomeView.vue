@@ -1,5 +1,10 @@
 <template>
-   
+    <div class="imagen-container">
+      <img class="logotec" src="../assets/teclogo.png" alt="Logo del Instituto Tecnológico de Culiacán" />
+      <div class="label-container">
+        <label class="font-weight">InvenTec - Instituto tecnológico de Culiacán</label>
+      </div>
+  </div>
 </template>
   
 <script>
@@ -31,6 +36,26 @@ export default {
 </script>
   
 <style>
+
+.imagen-container {
+  text-align: center;
+}
+
+.logotec {
+  width: 600px;
+  max-width: 80%;
+}
+
+.label-container {
+  margin-top: 10px;
+}
+
+.font-weight-medium {
+  font-size: 1.5em;
+  /* Adjust the font size as needed */
+  color: var(--color-primary);
+}
+
 :root {
   --color-primary: #5b8bf7;
   --color-secondary: #f2f2f2;

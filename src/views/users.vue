@@ -6,7 +6,7 @@
 
                 <!-- Botón para habilitar modal de registro de usuario -->
                 <template v-slot:activator="{ on }">
-                    <v-btn block @click="mostrarFormulario = true" class="mb-3 green" dark>
+                    <v-btn @click="mostrarFormulario = true" class="mb-3 green" dark>
                         <v-icon>mdi-plus</v-icon> Agregar Usuario
                     </v-btn>
                 </template>
@@ -191,6 +191,7 @@ export default {
                     const user = userCredential.user;
                     console.log("Usuario registrado con éxito:", user);
 
+                    // Registro usuario en SQL
                     axios
                         .post('http://localhost:3000/api/users/registraUsuario', this.nuevoUsuario)
                         .then((response) => {
@@ -262,6 +263,10 @@ export default {
 <style>
 .entrar {
     animation: entrada 0.7s ease;
+}
+
+.v-data-table th {
+    background-color: #e1d8f1;
 }
 
 @keyframes entrada {

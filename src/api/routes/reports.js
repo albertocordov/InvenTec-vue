@@ -82,7 +82,7 @@ router.get('/api/reportes/totalActivosPorDepto', async (req, res) => {
 });
 
 // Inventario por departamento y fecha
-router.get('/api/inventoryByDepartmentAndDate/:depclave/:selectedDate', async (req, res) => {
+router.get('/api/reportes/inventarioPorDeptoFecha/:depclave/:selectedDate', async (req, res) => {
     const {
         depclave,
         selectedDate
@@ -95,18 +95,19 @@ router.get('/api/inventoryByDepartmentAndDate/:depclave/:selectedDate', async (r
             .input('depclave', sql.Int, depclave)
             .input('selectedDate', sql.VarChar, selectedDate) // Ajusta el tipo de dato según el tipo real de la columna EscFecha
             .query(`
-          SELECT 
-            d.areanombre, 
-            COUNT(DISTINCT a.actid) AS activos, 
+            SELECT
+            d.areanombre,
+            COUNT(DISTINCT a.actid) AS activos,
             COUNT(DISTINCT e.actid) AS escaneado
-          FROM 
+        FROM
             areas d
-            LEFT JOIN activos a ON a.areaid = d.areaid
-            LEFT JOIN Escaneo e ON a.actid = e.actid
-          WHERE 
-            a.depclave = @depclave
-            AND CONVERT(DATE, e.EscFecha) = @selectedDate
-          GROUP BY 
+        LEFT JOIN
+            activos a ON a.areaid = d.areaid
+        LEFT JOIN
+            Escaneo e ON a.actid = e.actid AND CONVERT(DATE, e.EscFecha) = @selectedDate
+        WHERE
+            a.depclave =  @depclave
+        GROUP BY
             d.areanombre;
         `);
 
@@ -117,7 +118,46 @@ router.get('/api/inventoryByDepartmentAndDate/:depclave/:selectedDate', async (r
     }
 });
 
-// Nueva consulta: Impresiones por departamento
+// Detalle de inventario
+router.get('/api/reportes/detalleInventario/:depclave/:selectedDate', async (req, res) => {
+    const { depclave, selectedDate } = req.params;
+
+    try {
+        const pool = await sql.connect(config);
+        const result = await pool
+            .request()
+            .input('depclave', sql.Int, depclave)
+            .input('selectedDate', sql.VarChar, selectedDate)
+            .query(`
+                SELECT
+                    a.ActId,
+                    a.ActNombre,
+                    a.ActCaracteristicas,
+                    d.depdepto,
+                    ar.areanombre,
+                    CASE WHEN e.actid IS NOT NULL THEN 'Inventariado' ELSE 'NO INVENTARIADO' END AS EstadoEscaneo
+                FROM
+                    Activos a
+                JOIN
+                    Departamentos d ON a.depclave = d.depclave
+                JOIN
+                    Areas ar ON a.areaid = ar.areaid
+                LEFT JOIN
+                    Escaneo e ON a.actid = e.actid AND CONVERT(DATE, e.EscFecha) = @selectedDate
+                WHERE
+                    a.depclave = @depclave
+                ORDER BY
+                    ar.areanombre, a.ActId;
+            `);
+
+        res.json(result.recordset);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(`Error en el servidor: ${error.message}`);
+    }
+});
+
+// Impresiones por departamento
 router.get('/api/reportes/impresionesPorDepto/:depclave', async (req, res) => {
     const {
         depclave

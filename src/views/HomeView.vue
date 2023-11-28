@@ -2,7 +2,7 @@
     <div class="imagen-container">
       <img class="logotec" src="../assets/teclogo.png" alt="Logo del Instituto Tecnológico de Culiacán" />
       <div class="label-container">
-        <label class="font-weight">InvenTec - Instituto tecnológico de Culiacán</label>
+        <label class="font-weight">InvenTec - Instituto Tecnológico de Culiacán</label>
       </div>
   </div>
 </template>

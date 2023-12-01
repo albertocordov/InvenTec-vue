@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar v-if="!inicioSesion" app color="background" dark>
       <v-img :src="require('../src/assets/teclogo.png')" class="shrink mr-2" width="75" />
-      <span class="nombreP">Inventec</span>
+      <span class="nombreP">InvenTec</span>
       <v-spacer></v-spacer>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">

@@ -4,6 +4,8 @@ const users = require('./routes/users.js');
 const combos = require('./routes/combos.js'); 
 const inventory = require('./routes/inventory.js'); 
 const departments = require('./routes/departments.js'); 
+const reports = require('./routes/reports.js'); 
+const vales = require('./routes/vales.js'); 
 
 const app = express();
 app.use(express.json());
@@ -13,6 +15,8 @@ app.use('/', users);
 app.use('/', combos);
 app.use('/', inventory);
 app.use('/', departments);
+app.use('/', reports);
+app.use('/', vales);
 
 const port = 3000;
 app.listen(port, () => {

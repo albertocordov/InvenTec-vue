@@ -60,6 +60,16 @@
           </v-tabs-items>
         </v-col>
       </v-row>
+      <v-col>
+        <div class="report-box">
+          <h3>Subir archivos de inventario</h3>
+          <v-file-input label="Seleccionar archivo de inventario" v-model="archivoSeleccionado"
+            accept=".csv, .txt"></v-file-input>
+          <v-btn @click="subirArchivo" class="mb-3 green" dark>
+            <v-icon>mdi-file-upload</v-icon> Subir archivo de inventario
+          </v-btn>
+        </div>
+      </v-col>
     </v-container>
   </div>
 </template>
@@ -88,9 +98,32 @@ export default {
     totalActPorDepartamento: [],
     inventarioDeptoFecha: [],
     impPorDepto: [],
-    detalleReporte : true,
+    detalleReporte: true,
   }),
   methods: {
+    subirArchivo() {
+      if (!this.archivoSeleccionado) {
+        this.alertaToast('warning', 'Por favor selecciona un archivo.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('archivo', this.archivoSeleccionado);
+
+      axios.post('http://localhost:3000/api/subirArchivo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+        .then(response => {
+          console.log('Respuesta de la API:', response.data);
+          this.alertaToast('success', 'Archivo subido exitosamente.');
+        })
+        .catch(error => {
+          console.error('Error al subir el archivo:', error);
+          this.alertaToast('warning', 'Error al subir el archivo, verifique su estructura.');
+        });
+    },
     async impresionesPorDepto(tipoReporte) {
       // Validar que se haya seleccionado un departamento
       const depclave = this.actDepto;
@@ -354,20 +387,20 @@ export default {
 
         case 3:
           // Reporte de inventario por departamento y fecha
-          if(this.detalleReporte){
+          if (this.detalleReporte) {
             const csv3 = Papa.unparse({
-            fields: ['Nombre del area', 'Activos registrados', 'Activos escaneados'],
-            data: data.map(item => [item.areanombre, item.activos, item.escaneado]),
-          });
-          this.descargarArchivoCSV(csv3, `reporte_inventario_conteo_${new Date().toISOString()}.csv`);
+              fields: ['Nombre del area', 'Activos registrados', 'Activos escaneados'],
+              data: data.map(item => [item.areanombre, item.activos, item.escaneado]),
+            });
+            this.descargarArchivoCSV(csv3, `reporte_inventario_conteo_${new Date().toISOString()}.csv`);
           } else {
             const csv3 = Papa.unparse({
-            fields: ['ID', 'Nombre activo', 'Características', 'Departamento', 'Nombre área', 'Estado'],
-            data: data.map(item => [item.ActId, item.ActNombre, item.ActCaracteristicas, item.depdepto, item.areanombre, item.EstadoEscaneo]),
-          });
-          this.descargarArchivoCSV(csv3, `reporte_inventario_detalle_${new Date().toISOString()}.csv`);
+              fields: ['ID', 'Nombre activo', 'Características', 'Departamento', 'Nombre área', 'Estado'],
+              data: data.map(item => [item.ActId, item.ActNombre, item.ActCaracteristicas, item.depdepto, item.areanombre, item.EstadoEscaneo]),
+            });
+            this.descargarArchivoCSV(csv3, `reporte_inventario_detalle_${new Date().toISOString()}.csv`);
           }
-          
+
           break;
 
         case 4:

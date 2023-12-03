@@ -181,6 +181,16 @@ export default {
         return;
       }
 
+      if (this.curp.length !== 18) {
+        this.alertaToast("warning", "Por favor, ingrese una CURP válida.");
+        return;
+      }
+
+      if (this.activosSeleccionados.length === 0) {
+        this.alertaToast("warning", "Por favor, seleccione al menos un activo.");
+        return;
+      }
+
       // Si todos los campos están llenos, proceder con la impresión
       this.imprimirPDF();
     },
@@ -294,7 +304,6 @@ export default {
       doc.setFont('helvetica', 'normal');
       doc.text(`${data.fechaElaboracion || ''}`, 212, 100, { align: "left" });
 
-
       // Espacio en blanco para firma
       doc.setFont('helvetica', 'bold');
       doc.text("FIRMA", 145, 112, "center");
@@ -319,7 +328,7 @@ export default {
       });
 
       this.guardaVale();
-      doc.save("informe.pdf");
+      doc.save("vale_resguardo.pdf");
       this.alertaToast("success", "PDF generado.");
 
     },

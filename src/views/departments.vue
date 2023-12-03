@@ -2,8 +2,7 @@
     <div class="container mt-2 entrar">
         <!-- <h1 class="text-center">Administración de departamentos</h1> -->
 
-        <v-tabs v-model="currentTab"  color="deep-purple-accent-4"
-      align-tabs="center">
+        <v-tabs v-model="currentTab" color="deep-purple-accent-4" align-tabs="center">
             <v-tab v-for="(tab, index) in tabs" :key="index">
                 {{ tab }}
             </v-tab>
@@ -112,9 +111,9 @@
                 </v-card-title>
                 <v-card-text>
                     <v-text-field v-model="nuevoDepartamento.depdepto" label="Departamento*" outlined
-                        :error="nuevoDepartamentoErrores.depdepto"></v-text-field>
+                        :error="nuevoDepartamentoErrores.depdepto" @input="toUpper"></v-text-field>
                     <v-text-field v-model="nuevoDepartamento.depalias" label="Alias del Departamento*" outlined
-                        :error="nuevoDepartamentoErrores.depalias"></v-text-field>
+                        :error="nuevoDepartamentoErrores.depalias" @input="toUpper"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" @click="modoEdicion ? guardarCambiosDepto() : agregarDepartamento()">
@@ -133,7 +132,7 @@
                 </v-card-title>
                 <v-card-text>
                     <v-text-field v-model="nuevoJefe.jefenombre" label="Nombre del Jefe" outlined
-                        :error="nuevoJefeErrores.jefenombre"></v-text-field>
+                        :error="nuevoJefeErrores.jefenombre" @input="toUpper"></v-text-field>
                     <v-autocomplete v-model="nuevoJefe.departamento" :items="departamentos" label="Departamento"
                         item-text="depdepto" item-value="depclave" outlined
                         :error="nuevoJefeErrores.departamento"></v-autocomplete>
@@ -165,7 +164,7 @@
                         label="Seleccionar Encargado del Área" item-text="jefenombre" item-value="jefeid" outlined
                         :error="nuevaAreaErrores.jefenombre"></v-autocomplete>
                     <v-text-field v-model="nuevaArea.areanombre" label="Nombre del Área" outlined
-                        :error="nuevaAreaErrores.areanombre"></v-text-field>
+                        :error="nuevaAreaErrores.areanombre" @input="toUpper"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn color="blue darken-1" @click="modoEdicion ? guardarCambiosArea() : agregarArea()">
@@ -317,6 +316,12 @@ export default {
         },
     },
     methods: {
+        toUpper() {
+            this.nuevoDepartamento.depdepto = this.nuevoDepartamento.depdepto.toUpperCase();
+            this.nuevoDepartamento.depalias = this.nuevoDepartamento.depalias.toUpperCase();
+            this.nuevoJefe.jefenombre = this.nuevoJefe.jefenombre.toUpperCase();
+            this.nuevaArea.areanombre = this.nuevaArea.areanombre.toUpperCase();
+        },
         alertaToast(icono, titulo) {
             const Toast = Swal.mixin({
                 toast: true,
@@ -416,7 +421,7 @@ export default {
             this.nuevoJefe = {
                 jefenombre: '',
                 departamento: '',
-                jefetipo_desc: '',
+                jefetipo_desc: false,
             }
             this.modoEdicion = false;
             this.mostrarModalJefes = true;
@@ -464,6 +469,8 @@ export default {
                         this.jefes[index] = this.nuevoJefe;
                     }
                     this.cargaDatosJefes();
+                    this.cargaDatosDeptos();
+                    this.cargaDatosAreas();
                     this.mostrarModalJefes = false;
 
                 })
@@ -659,6 +666,7 @@ export default {
                         departamento: ''
                     };
                     this.cargaDatosJefes();
+                    this.cargaDatosAreas();
                     this.cargaDatosDeptos();
                     this.cargaDatosCombos();
                 })
@@ -812,4 +820,5 @@ export default {
     to {
         opacity: 100%;
     }
-}</style>
+}
+</style>

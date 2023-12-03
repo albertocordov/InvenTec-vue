@@ -17,23 +17,23 @@
             {{ edicionActiva ? 'Editar activo' : 'Registrar activo' }}
           </v-card-title>
           <v-card-text>
-            <v-text-field v-model="nuevoUsuario.idSep" label="ID SEP" outlined></v-text-field>
-            <v-text-field v-model="nuevoUsuario.noInv" label="No. Inventario" outlined></v-text-field>
-            <v-text-field v-model="nuevoUsuario.nombre" label="Nombre*" outlined
-              :error="nuevoUsuarioErrores.nombre"></v-text-field>
-            <v-text-field v-model="nuevoUsuario.caracteristicas" label="Características*" outlined
-              :error="nuevoUsuarioErrores.caracteristicas"></v-text-field>
-            <v-text-field v-model="nuevoUsuario.marca" label="Marca" outlined></v-text-field>
-            <v-text-field v-model="nuevoUsuario.modelo" label="Modelo" outlined></v-text-field>
-            <v-text-field v-model="nuevoUsuario.serie" label="Serie" outlined></v-text-field>
-            <v-text-field v-model="nuevoUsuario.valor" label="Valor" outlined
-              :error="nuevoUsuarioErrores.valor"></v-text-field>
-            <v-text-field v-model="nuevoUsuario.camb" label="Camb" outlined></v-text-field>
-            <v-select v-model="nuevoUsuario.departamento" :items="departamentos" label="Departamento*" outlined
-              :error="nuevoUsuarioErrores.departamento" item-text="depdepto" item-value="depclave"></v-select>
-            <v-select v-model="nuevoUsuario.area" :items="areasPorDepartamento" label="Área*" outlined
-              :error="nuevoUsuarioErrores.area" item-text="areanombre" item-value="areaid"></v-select>
-            <v-textarea v-model="nuevoUsuario.observaciones" label="Observaciones" outlined></v-textarea>
+            <v-text-field v-model="nuevoActivo.idSep" label="ID SEP" outlined></v-text-field>
+            <v-text-field v-model="nuevoActivo.noInv" label="No. Inventario" outlined></v-text-field>
+            <v-text-field v-model="nuevoActivo.nombre" label="Nombre*" outlined
+              :error="nuevoActivoErrores.nombre" @input="toUpper"></v-text-field>
+            <v-text-field v-model="nuevoActivo.caracteristicas" label="Características*" outlined
+              :error="nuevoActivoErrores.caracteristicas" @input="toUpper"></v-text-field>
+            <v-text-field v-model="nuevoActivo.marca" label="Marca" outlined></v-text-field>
+            <v-text-field v-model="nuevoActivo.modelo" label="Modelo" outlined></v-text-field>
+            <v-text-field v-model="nuevoActivo.serie" label="Serie" outlined></v-text-field>
+            <v-text-field v-model="nuevoActivo.valor" label="Valor" outlined
+              :error="nuevoActivoErrores.valor"></v-text-field>
+            <v-text-field v-model="nuevoActivo.camb" label="Camb" outlined></v-text-field>
+            <v-select v-model="nuevoActivo.departamento" :items="departamentos" label="Departamento*" outlined
+              :error="nuevoActivoErrores.departamento" item-text="depdepto" item-value="depclave"></v-select>
+            <v-select v-model="nuevoActivo.area" :items="areasPorDepartamento" label="Área*" outlined
+              :error="nuevoActivoErrores.area" item-text="areanombre" item-value="areaid"></v-select>
+            <v-textarea v-model="nuevoActivo.observaciones" label="Observaciones" outlined></v-textarea>
           </v-card-text>
           <v-card-actions>
             <v-btn color="green" @click="edicionActiva ? guardarCambios() : registrarNuevoActivo()">
@@ -109,7 +109,7 @@ export default {
     idActivoAEditar: null,
     mostrarConfirmacionEliminar: false,
     activoAEliminar: null,
-    nuevoUsuario: {
+    nuevoActivo: {
       ActId: '',
       idSep: '',
       noInv: '',
@@ -124,7 +124,7 @@ export default {
       area: '',
       observaciones: '',
     },
-    nuevoUsuarioErrores: {
+    nuevoActivoErrores: {
       nombre: false,
       caracteristicas: false,
       departamento: false,
@@ -132,7 +132,7 @@ export default {
     },
   }),
   watch: {
-    'nuevoUsuario.departamento': 'actualizarAreas',
+    'nuevoActivo.departamento': 'actualizarAreas',
   },
   computed: {
     // Búsqueda de activos por todas sus columnas.
@@ -178,6 +178,10 @@ export default {
       });
   },
   methods: {
+    toUpper() {
+            this.nuevoActivo.nombre = this.nuevoActivo.nombre.toUpperCase();
+            this.nuevoActivo.caracteristicas = this.nuevoActivo.caracteristicas.toUpperCase();
+        },
     alertaToast(icono, titulo) {
       const Toast = Swal.mixin({
         toast: true,
@@ -216,18 +220,18 @@ export default {
         .then((response) => {
 
           // Carga los datos del activo en el formulario
-          this.nuevoUsuario.idSep = response.data[0].ActIdSep;
-          this.nuevoUsuario.noInv = response.data[0].ActNoInv;
-          this.nuevoUsuario.nombre = response.data[0].ActNombre;
-          this.nuevoUsuario.caracteristicas = response.data[0].ActCaracteristicas;
-          this.nuevoUsuario.marca = response.data[0].ActMarca;
-          this.nuevoUsuario.modelo = response.data[0].ActModelo;
-          this.nuevoUsuario.serie = response.data[0].ActSerie;
-          this.nuevoUsuario.valor = response.data[0].ActValor;
-          this.nuevoUsuario.camb = response.data[0].ActCabm;
-          this.nuevoUsuario.departamento = response.data[0].depclave;
-          this.nuevoUsuario.area = response.data[0].AreaId;
-          this.nuevoUsuario.observaciones = response.data[0].ActObser;
+          this.nuevoActivo.idSep = response.data[0].ActIdSep;
+          this.nuevoActivo.noInv = response.data[0].ActNoInv;
+          this.nuevoActivo.nombre = response.data[0].ActNombre;
+          this.nuevoActivo.caracteristicas = response.data[0].ActCaracteristicas;
+          this.nuevoActivo.marca = response.data[0].ActMarca;
+          this.nuevoActivo.modelo = response.data[0].ActModelo;
+          this.nuevoActivo.serie = response.data[0].ActSerie;
+          this.nuevoActivo.valor = response.data[0].ActValor;
+          this.nuevoActivo.camb = response.data[0].ActCabm;
+          this.nuevoActivo.departamento = response.data[0].depclave;
+          this.nuevoActivo.area = response.data[0].AreaId;
+          this.nuevoActivo.observaciones = response.data[0].ActObser;
 
           // Activa el modo de edición y muestra el formulario
           this.edicionActiva = true;
@@ -238,30 +242,30 @@ export default {
         });
     },
     actualizarAreas() {
-      if (this.nuevoUsuario.departamento) {
+      if (this.nuevoActivo.departamento) {
         // Filtra las áreas según el departamento seleccionado
         this.areasPorDepartamento = this.areas.filter(
-          (area) => area.depclave === this.nuevoUsuario.departamento
+          (area) => area.depclave === this.nuevoActivo.departamento
         );
         // Restablece el valor del área si ya no es válido
-        if (!this.areasPorDepartamento.find((a) => a.areaid === this.nuevoUsuario.area)) {
-          this.nuevoUsuario.area = '';
+        if (!this.areasPorDepartamento.find((a) => a.areaid === this.nuevoActivo.area)) {
+          this.nuevoActivo.area = '';
         }
       } else {
         // Si no se ha seleccionado un departamento, reinicia las áreas
         this.areasPorDepartamento = [];
-        this.nuevoUsuario.area = '';
+        this.nuevoActivo.area = '';
       }
     },
     // Actualiza los datos de un activo
     guardarCambios() {
       axios
-        .put(`http://localhost:3000/api/inventory/actualizar/${this.idActivoAEditar}`, this.nuevoUsuario)
+        .put(`http://localhost:3000/api/inventory/actualizar/${this.idActivoAEditar}`, this.nuevoActivo)
         .then((response) => {
           // Actualiza el activo en la lista
           const index = this.inventario.findIndex((item) => item.ActId === this.idActivoAEditar);
           if (index !== -1) {
-            this.inventario[index] = this.nuevoUsuario;
+            this.inventario[index] = this.nuevoActivo;
           }
           this.alertaToast("success", "Activo modificado correctamente.");
           this.cargarActivos();
@@ -275,7 +279,7 @@ export default {
       this.edicionActiva = false;
       this.idActivoAEditar = null;
 
-      this.nuevoUsuario = {
+      this.nuevoActivo = {
         idSep: '',
         noInv: '',
         nombre: '',
@@ -290,7 +294,7 @@ export default {
         observaciones: '',
       };
 
-      this.nuevoUsuarioErrores = {
+      this.nuevoActivoErrores = {
         nombre: false,
         caracteristicas: false,
         departamento: false,
@@ -300,7 +304,7 @@ export default {
       this.mostrarFormulario = false;
     },
     registraActivo() {
-      this.nuevoUsuario = {
+      this.nuevoActivo = {
         idSep: '',
         noInv: '',
         nombre: '',
@@ -357,7 +361,7 @@ export default {
     },
     registrarNuevoActivo() {
       // Reestablece los errores del formulario
-      this.nuevoUsuarioErrores = {
+      this.nuevoActivoErrores = {
         nombre: false,
         caracteristicas: false,
         departamento: false,
@@ -366,40 +370,40 @@ export default {
       };
 
       // Verifica que los campos requeridos tengan información
-      if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.caracteristicas || !this.nuevoUsuario.departamento || !this.nuevoUsuario.area) {
+      if (!this.nuevoActivo.nombre || !this.nuevoActivo.caracteristicas || !this.nuevoActivo.departamento || !this.nuevoActivo.area) {
 
         // Establece errores en los campos requeridos
-        if (!this.nuevoUsuario.nombre) {
-          this.nuevoUsuarioErrores.nombre = true;
+        if (!this.nuevoActivo.nombre) {
+          this.nuevoActivoErrores.nombre = true;
         }
-        if (!this.nuevoUsuario.caracteristicas) {
-          this.nuevoUsuarioErrores.caracteristicas = true;
+        if (!this.nuevoActivo.caracteristicas) {
+          this.nuevoActivoErrores.caracteristicas = true;
         }
-        if (!this.nuevoUsuario.departamento) {
-          this.nuevoUsuarioErrores.departamento = true;
+        if (!this.nuevoActivo.departamento) {
+          this.nuevoActivoErrores.departamento = true;
         }
-        if (!this.nuevoUsuario.area) {
-          this.nuevoUsuarioErrores.area = true;
+        if (!this.nuevoActivo.area) {
+          this.nuevoActivoErrores.area = true;
         }
         return;
       }
 
       // Valida que el campo 'valor' sea un número, no es obligatorio que tenga un valor.
-      if (this.nuevoUsuario.valor) {
-        const valor = parseFloat(this.nuevoUsuario.valor);
+      if (this.nuevoActivo.valor) {
+        const valor = parseFloat(this.nuevoActivo.valor);
         if (isNaN(valor)) {
-          this.nuevoUsuarioErrores.valor = true;
+          this.nuevoActivoErrores.valor = true;
           return;
         }
       } else {
-        this.nuevoUsuario.valor = 0;
+        this.nuevoActivo.valor = 0;
       }
 
       axios
-        .post('http://localhost:3000/api/inventory/registra', this.nuevoUsuario)
+        .post('http://localhost:3000/api/inventory/registra', this.nuevoActivo)
         .then((response) => {
-          this.inventario.push(this.nuevoUsuario);
-          this.nuevoUsuario = {
+          this.inventario.push(this.nuevoActivo);
+          this.nuevoActivo = {
             idSep: '',
             noInv: '',
             nombre: '',

@@ -124,7 +124,12 @@ export default {
         { text: 'Departamento', value: 'NombreDepartamento' },
         { text: 'Agregar', value: 'agregar', sortable: false }
       ],
-      activos: []
+      activos: [
+        { "aID": 1, "NoInventario": "INV001", "Nombre": "Computadora", "Marca": "HP", "Modelo": "EliteBook", "Serie": "ABC123", "NombreDepartamento": "Tecnología" },
+        { "aID": 2, "NoInventario": "INV002", "Nombre": "Impresora", "Marca": "Epson", "Modelo": "LaserJet", "Serie": "XYZ456", "NombreDepartamento": "Oficina" },
+        { "aID": 3, "NoInventario": "INV003", "Nombre": "Escritorio", "Marca": "IKEA", "Modelo": "Malm", "Serie": "123XYZ", "NombreDepartamento": "Muebles" },
+        { "aID": 4, "NoInventario": "INV004", "Nombre": "Teléfono", "Marca": "Samsung", "Modelo": "Galaxy S20", "Serie": "789ABC", "NombreDepartamento": "Comunicaciones" },
+      ]
     };
   },
   computed: {
@@ -173,6 +178,16 @@ export default {
           this.marcarCampoVacio(campo);
         });
 
+        return;
+      }
+
+      if (this.curp.length !== 18) {
+        this.alertaToast("warning", "Por favor, ingrese una CURP válida.");
+        return;
+      }
+
+      if (this.activosSeleccionados.length === 0) {
+        this.alertaToast("warning", "Por favor, seleccione al menos un activo.");
         return;
       }
 
@@ -289,7 +304,6 @@ export default {
       doc.setFont('helvetica', 'normal');
       doc.text(`${data.fechaElaboracion || ''}`, 212, 100, { align: "left" });
 
-
       // Espacio en blanco para firma
       doc.setFont('helvetica', 'bold');
       doc.text("FIRMA", 145, 112, "center");
@@ -314,7 +328,7 @@ export default {
       });
 
       this.guardaVale();
-      doc.save("informe.pdf");
+      doc.save("vale_resguardo.pdf");
       this.alertaToast("success", "PDF generado.");
 
     },
@@ -340,7 +354,8 @@ export default {
   created() {
     axios.get('http://localhost:3000/api/vales/inventory')
       .then(response => {
-        this.activos = response.data;
+        // this.activos = response.data;
+        console.log(responser.data);
       })
       .catch(error => {
         console.error('Error al cargar el inventario', error);

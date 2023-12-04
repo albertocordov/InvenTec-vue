@@ -124,12 +124,7 @@ export default {
         { text: 'Departamento', value: 'NombreDepartamento' },
         { text: 'Agregar', value: 'agregar', sortable: false }
       ],
-      activos: [
-        { "aID": 1, "NoInventario": "INV001", "Nombre": "Computadora", "Marca": "HP", "Modelo": "EliteBook", "Serie": "ABC123", "NombreDepartamento": "Tecnología" },
-        { "aID": 2, "NoInventario": "INV002", "Nombre": "Impresora", "Marca": "Epson", "Modelo": "LaserJet", "Serie": "XYZ456", "NombreDepartamento": "Oficina" },
-        { "aID": 3, "NoInventario": "INV003", "Nombre": "Escritorio", "Marca": "IKEA", "Modelo": "Malm", "Serie": "123XYZ", "NombreDepartamento": "Muebles" },
-        { "aID": 4, "NoInventario": "INV004", "Nombre": "Teléfono", "Marca": "Samsung", "Modelo": "Galaxy S20", "Serie": "789ABC", "NombreDepartamento": "Comunicaciones" },
-      ]
+      activos: []
     };
   },
   computed: {
@@ -354,7 +349,7 @@ export default {
   created() {
     axios.get('http://localhost:3000/api/vales/inventory')
       .then(response => {
-        // this.activos = response.data;
+        this.activos = response.data;
         console.log(responser.data);
       })
       .catch(error => {

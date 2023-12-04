@@ -1,25 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const sql = require('mssql');
-const cors = require('cors');
 
-const config = {
-  user: 'userinventec',
-  password: '12345678',
-  server: 'DAVID-D14\\SQLEXPRESS',
-  database: 'inventec',
-  options: {
-    encrypt: false, // Deshabilita SSL/TLS
-  },
-};
-
-// Llena dataTable de activos en vista inventory
-router.get('/api/inventory', async (req, res) => {
-  try {
-    const pool = await sql.connect(config);
-    const result = await pool
-      .request()
-      .query(`SELECT 
+module.exports = (config, sql) => {
+  // Llena dataTable de activos en vista inventory
+  router.get('/api/inventory', async (req, res) => {
+    try {
+      const pool = await sql.connect(config);
+      const result = await pool
+        .request()
+        .query(`SELECT 
                       A.ActId,
                       A.ActNombre,
                       A.ActCaracteristicas,
@@ -30,64 +19,64 @@ router.get('/api/inventory', async (req, res) => {
                   INNER JOIN Departamentos AS D ON AR.Depclave = D.Depclave
                   LEFT JOIN Jefes AS J ON D.JefeId = J.JefeId;
                   ;`);
-    res.json(result.recordset);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(`Error en el servidor: ${error.message}`);
-  }
-});
+      res.json(result.recordset);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(`Error en el servidor: ${error.message}`);
+    }
+  });
 
-// Inserta un nuevo activo en la base de datos
-router.post('/api/inventory/registra', async (req, res) => {
-  const nuevoActivo = req.body;
+  // Inserta un nuevo activo en la base de datos
+  router.post('/api/inventory/registra', async (req, res) => {
+    const nuevoActivo = req.body;
 
-  console.log('Nuevo activo recibido:', nuevoActivo);
+    console.log('Nuevo activo recibido:', nuevoActivo);
 
-  try {
-    const pool = await sql.connect(config);
-    const result = await pool
-      .request()
-      .input('ActIdSep', sql.VarChar, nuevoActivo.idSep)
-      .input('ActNoInv', sql.VarChar, nuevoActivo.noInv)
-      .input('ActNombre', sql.NVarChar, nuevoActivo.nombre)
-      .input('ActCaracteristicas', sql.NVarChar, nuevoActivo.caracteristicas)
-      .input('ActMarca', sql.NVarChar, nuevoActivo.marca)
-      .input('ActModelo', sql.NVarChar, nuevoActivo.modelo)
-      .input('ActSerie', sql.NVarChar, nuevoActivo.serie)
-      .input('ActValor', sql.Decimal, nuevoActivo.valor)
-      .input('ActCabm', sql.NVarChar, nuevoActivo.camb)
-      .input('depclave', sql.Int, nuevoActivo.departamento)
-      .input('AreaId', sql.Int, nuevoActivo.area)
-      .input('ActObser', sql.NVarChar, nuevoActivo.observaciones)
-      .query(`
+    try {
+      const pool = await sql.connect(config);
+      const result = await pool
+        .request()
+        .input('ActIdSep', sql.VarChar, nuevoActivo.idSep)
+        .input('ActNoInv', sql.VarChar, nuevoActivo.noInv)
+        .input('ActNombre', sql.NVarChar, nuevoActivo.nombre)
+        .input('ActCaracteristicas', sql.NVarChar, nuevoActivo.caracteristicas)
+        .input('ActMarca', sql.NVarChar, nuevoActivo.marca)
+        .input('ActModelo', sql.NVarChar, nuevoActivo.modelo)
+        .input('ActSerie', sql.NVarChar, nuevoActivo.serie)
+        .input('ActValor', sql.Decimal, nuevoActivo.valor)
+        .input('ActCabm', sql.NVarChar, nuevoActivo.camb)
+        .input('depclave', sql.Int, nuevoActivo.departamento)
+        .input('AreaId', sql.Int, nuevoActivo.area)
+        .input('ActObser', sql.NVarChar, nuevoActivo.observaciones)
+        .query(`
           INSERT INTO Activos (ActIdSep, ActNoInv, ActNombre, ActCaracteristicas, ActMarca, ActModelo, ActSerie,
           ActValor, ActCabm, depclave, AreaId, ActObser)
           VALUES (@ActIdSep, @ActNoInv, @ActNombre, @ActCaracteristicas, @ActMarca, @ActModelo, @ActSerie,
           @ActValor, @ActCabm, @depclave, @AreaId, @ActObser);
         `);
 
-    console.log('Resultado de la inserción:', result);
+      console.log('Resultado de la inserción:', result);
 
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    console.error('Error al registrar el activo:', error);
-    res.status(500).send(`Error al registrar el activo: ${error.message}`);
-  }
-});
+      res.json(result);
+    } catch (error) {
+      console.error(error);
+      console.error('Error al registrar el activo:', error);
+      res.status(500).send(`Error al registrar el activo: ${error.message}`);
+    }
+  });
 
-// Consulta datos de un activo por su ActId
-router.get('/api/inventory/:ActId', async (req, res) => {
-  const {
-    ActId
-  } = req.params;
+  // Consulta datos de un activo por su ActId
+  router.get('/api/inventory/:ActId', async (req, res) => {
+    const {
+      ActId
+    } = req.params;
 
-  try {
-    const pool = await sql.connect(config);
-    const result = await pool
-      .request()
-      .input('ActId', sql.Int, ActId)
-      .query(`
+    try {
+      const pool = await sql.connect(config);
+      const result = await pool
+        .request()
+        .input('ActId', sql.Int, ActId)
+        .query(`
           SELECT 
               ActIdSep,
               ActNoInv,
@@ -105,38 +94,38 @@ router.get('/api/inventory/:ActId', async (req, res) => {
           WHERE ActId = @ActId;
         `);
 
-    res.json(result.recordset);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(`Error en el servidor: ${error.message}`);
-  }
-});
+      res.json(result.recordset);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(`Error en el servidor: ${error.message}`);
+    }
+  });
 
-// Actualiza el activo seleccionado
-router.put('/api/inventory/actualizar/:ActId', async (req, res) => {
-  const {
-    ActId
-  } = req.params;
-  const nuevoActivo = req.body;
+  // Actualiza el activo seleccionado
+  router.put('/api/inventory/actualizar/:ActId', async (req, res) => {
+    const {
+      ActId
+    } = req.params;
+    const nuevoActivo = req.body;
 
-  try {
-    const pool = await sql.connect(config);
-    const result = await pool
-      .request()
-      .input('ActIdSep', sql.VarChar, nuevoActivo.idSep)
-      .input('ActNoInv', sql.VarChar, nuevoActivo.noInv)
-      .input('ActNombre', sql.NVarChar, nuevoActivo.nombre)
-      .input('ActCaracteristicas', sql.NVarChar, nuevoActivo.caracteristicas)
-      .input('ActMarca', sql.NVarChar, nuevoActivo.marca)
-      .input('ActModelo', sql.NVarChar, nuevoActivo.modelo)
-      .input('ActSerie', sql.NVarChar, nuevoActivo.serie)
-      .input('ActValor', sql.Decimal, nuevoActivo.valor)
-      .input('ActCabm', sql.NVarChar, nuevoActivo.camb)
-      .input('depclave', sql.Int, nuevoActivo.departamento)
-      .input('AreaId', sql.Int, nuevoActivo.area)
-      .input('ActObser', sql.NVarChar, nuevoActivo.observaciones)
-      .input('ActId', sql.Int, ActId)
-      .query(`
+    try {
+      const pool = await sql.connect(config);
+      const result = await pool
+        .request()
+        .input('ActIdSep', sql.VarChar, nuevoActivo.idSep)
+        .input('ActNoInv', sql.VarChar, nuevoActivo.noInv)
+        .input('ActNombre', sql.NVarChar, nuevoActivo.nombre)
+        .input('ActCaracteristicas', sql.NVarChar, nuevoActivo.caracteristicas)
+        .input('ActMarca', sql.NVarChar, nuevoActivo.marca)
+        .input('ActModelo', sql.NVarChar, nuevoActivo.modelo)
+        .input('ActSerie', sql.NVarChar, nuevoActivo.serie)
+        .input('ActValor', sql.Decimal, nuevoActivo.valor)
+        .input('ActCabm', sql.NVarChar, nuevoActivo.camb)
+        .input('depclave', sql.Int, nuevoActivo.departamento)
+        .input('AreaId', sql.Int, nuevoActivo.area)
+        .input('ActObser', sql.NVarChar, nuevoActivo.observaciones)
+        .input('ActId', sql.Int, ActId)
+        .query(`
           UPDATE Activos
           SET
             ActIdSep = @ActIdSep,
@@ -154,33 +143,34 @@ router.put('/api/inventory/actualizar/:ActId', async (req, res) => {
           WHERE ActId = @ActId;
         `);
 
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(`Error al actualizar el activo: ${error.message}`);
-  }
-});
+      res.json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(`Error al actualizar el activo: ${error.message}`);
+    }
+  });
 
-// Elimina activos por su ActId
-router.delete('/api/inventory/eliminar/:ActId', async (req, res) => {
-  const {
-    ActId
-  } = req.params;
+  // Elimina activos por su ActId
+  router.delete('/api/inventory/eliminar/:ActId', async (req, res) => {
+    const {
+      ActId
+    } = req.params;
 
-  try {
-    const pool = await sql.connect(config);
-    const result = await pool
-      .request()
-      .input('ActId', sql.Int, ActId)
-      .query('DELETE FROM Activos WHERE ActId = @ActId');
+    try {
+      const pool = await sql.connect(config);
+      const result = await pool
+        .request()
+        .input('ActId', sql.Int, ActId)
+        .query('DELETE FROM Activos WHERE ActId = @ActId');
 
-    console.log(`Activo eliminado con éxito. ActId: ${ActId}`);
+      console.log(`Activo eliminado con éxito. ActId: ${ActId}`);
 
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(`Error al eliminar el activo: ${error.message}`);
-  }
-});
+      res.json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send(`Error al eliminar el activo: ${error.message}`);
+    }
+  });
 
-module.exports = router;
+  return router;
+};

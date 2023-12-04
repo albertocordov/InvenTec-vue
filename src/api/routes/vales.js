@@ -1,54 +1,43 @@
 const express = require('express');
 const router = express.Router();
-const sql = require('mssql');
-const cors = require('cors');
 
-const config = {
-    user: 'userinventec',
-    password: '12345678',
-    server: 'DAVID-D14\\SQLEXPRESS',
-    database: 'inventec',
-    options: {
-        encrypt: false, // Deshabilita SSL/TLS
-    },
-};
+module.exports = (config, sql) => {
+    router.post('/api/vales/registraVale', async (req, res) => {
+        const nuevoUsuario = req.body;
 
-router.post('/api/vales/registraVale', async (req, res) => {
-    const nuevoUsuario = req.body;
-
-    try {
-        const pool = await sql.connect(config);
-        const result = await pool
-            .request()
-            .input('nombre', sql.NVarChar, nuevoUsuario.nombre)
-            .input('email', sql.VarChar, nuevoUsuario.email)
-            .input('esAdmin', sql.Int, nuevoUsuario.esAdmin ? 1 : 0)
-            .query(`
+        try {
+            const pool = await sql.connect(config);
+            const result = await pool
+                .request()
+                .input('nombre', sql.NVarChar, nuevoUsuario.nombre)
+                .input('email', sql.VarChar, nuevoUsuario.email)
+                .input('esAdmin', sql.Int, nuevoUsuario.esAdmin ? 1 : 0)
+                .query(`
           INSERT INTO usuarios (UsrNombre, UsrCorreo, UsrTipo)
           VALUES (@nombre, @email, @esAdmin);
         `);
 
-        console.log('Resultado de la inserción:', result);
+            console.log('Resultado de la inserción:', result);
 
-        res.status(200).json({
-            success: true,
-            message: 'Usuario guardado en SQL Server.'
-        });
-    } catch (error) {
-        console.error('Error al guardar el usuario en SQL Server:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error al guardar el usuario en SQL Server.'
-        });
-    }
-});
+            res.status(200).json({
+                success: true,
+                message: 'Usuario guardado en SQL Server.'
+            });
+        } catch (error) {
+            console.error('Error al guardar el usuario en SQL Server:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al guardar el usuario en SQL Server.'
+            });
+        }
+    });
 
-router.get('/api/vales/inventory', async (req, res) => {
-    try {
-        const pool = await sql.connect(config);
-        const result = await pool
-            .request()
-            .query(`
+    router.get('/api/vales/inventory', async (req, res) => {
+        try {
+            const pool = await sql.connect(config);
+            const result = await pool
+                .request()
+                .query(`
         SELECT
             CAST(A.ActId AS VARCHAR) as aID,
             COALESCE(NULLIF(A.ActNoInv, ''), 'SIN DATOS') AS NoInventario,
@@ -61,73 +50,73 @@ router.get('/api/vales/inventory', async (req, res) => {
           Activos AS A
         INNER JOIN
           Departamentos AS D ON A.Depclave = D.Depclave;`);
-        res.json(result.recordset);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send(`Error en el servidor: ${error.message}`);
-    }
-});
+            res.json(result.recordset);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send(`Error en el servidor: ${error.message}`);
+        }
+    });
 
-router.post('/api/vales/guardar', async (req, res) => {
-    try {
-        // Conecta a la base de datos
-        await sql.connect(config);
-
-        // Comienza una transacción
-        const transaction = new sql.Transaction();
-        await transaction.begin();
-
+    router.post('/api/vales/guardar', async (req, res) => {
         try {
-            // Inserta datos en ValesResguardo
-            const valeData = req.body.vale;
-            const resultVale = await transaction.request()
-                .query(`
+            // Conecta a la base de datos
+            await sql.connect(config);
+
+            // Comienza una transacción
+            const transaction = new sql.Transaction();
+            await transaction.begin();
+
+            try {
+                // Inserta datos en ValesResguardo
+                const valeData = req.body.vale;
+                const resultVale = await transaction.request()
+                    .query(`
             INSERT INTO ValesResguardo (fechaVale, ValeArea, ValeCentroTrabajo, ValeNombre, ValeCurp, ValeFechaElaboracion)
             OUTPUT INSERTED.ValeId
             VALUES ('${valeData.fecha}', '${valeData.area}', '${valeData.centroTrabajo}', '${valeData.nombre}', '${valeData.curp}', '${valeData.fechaElaboracion}');
           `);
 
-            console.log("Result Vale:", resultVale);
-            console.log("Recordset:", resultVale.recordset);
+                console.log("Result Vale:", resultVale);
+                console.log("Recordset:", resultVale.recordset);
 
-            // Obtiene el ID del vale insertado
-            const valeId = resultVale.recordset[0].ValeId;
+                // Obtiene el ID del vale insertado
+                const valeId = resultVale.recordset[0].ValeId;
 
-            // Inserta datos en ValesxActivos
-            const activosSeleccionados = req.body.activosSeleccionados;
-            for (const activoId of activosSeleccionados) {
-                await transaction.request()
-                    .query(`
+                // Inserta datos en ValesxActivos
+                const activosSeleccionados = req.body.activosSeleccionados;
+                for (const activoId of activosSeleccionados) {
+                    await transaction.request()
+                        .query(`
               INSERT INTO ValesxActivos (ValeId, ActId)
               VALUES (${valeId}, '${activoId}');
             `);
+                }
+
+                // Confirma la transacción
+                await transaction.commit();
+
+                // Envía una respuesta exitosa
+                res.json({
+                    success: true,
+                    message: 'Vale guardado con éxito.'
+                });
+            } catch (error) {
+                // Si hay un error, deshace la transacción
+                await transaction.rollback();
+                throw error;
             }
-
-            // Confirma la transacción
-            await transaction.commit();
-
-            // Envía una respuesta exitosa
-            res.json({
-                success: true,
-                message: 'Vale guardado con éxito.'
-            });
         } catch (error) {
-            // Si hay un error, deshace la transacción
-            await transaction.rollback();
-            throw error;
+            // Maneja los errores de la conexión a la base de datos
+            console.error('Error al conectar a la base de datos:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor.'
+            });
+        } finally {
+            // Cierra la conexión a la base de datos
+            sql.close();
         }
-    } catch (error) {
-        // Maneja los errores de la conexión a la base de datos
-        console.error('Error al conectar a la base de datos:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error interno del servidor.'
-        });
-    } finally {
-        // Cierra la conexión a la base de datos
-        sql.close();
-    }
-});
+    });
 
-
-module.exports = router;
+    return router;
+};

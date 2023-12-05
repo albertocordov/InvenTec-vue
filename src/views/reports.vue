@@ -26,13 +26,23 @@
                     <v-menu v-if="index === 2" v-model="menuFecha" :close-on-content-click="true" :nudge-right="30"
                       transition="scale-transition">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="fechaSeleccionada" label="Seleccionar fecha*" readonly v-on="on"
-                          v-bind="attrs"></v-text-field>
+
+                          <v-menu :close-on-content-click="true" :nudge-right="40" transition="scale-transition" offset-y
+                            min-width="290px">
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field label="Seleccionar fecha*" readonly v-bind="attrs" v-on="on"
+                                v-model="fechaSeleccionada"></v-text-field>
+                            </template>
+                            <v-date-picker v-model="fechaSeleccionada" @input="menu = false"
+                              style="height: 470px;"></v-date-picker>
+                          </v-menu>
                         <v-select label="Seleccionar departamento*" v-model="actDepto" :items="departamentos"
                           item-text="depdepto" item-value="depclave"></v-select>
                       </template>
-                      <v-date-picker v-model="fechaSeleccionada" locale="es" no-title scrollable></v-date-picker>
                     </v-menu>
+
+
+
                     <v-radio-group v-if="index === 2" v-model="detalleReporte" row>
                       <v-radio label="Conteo" :value="true"></v-radio>
                       <v-radio label="Detalle" :value="false"></v-radio>

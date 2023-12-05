@@ -18,7 +18,7 @@
                     </v-card-title>
                     <v-card-text>
                         <v-text-field v-model="nuevoUsuario.nombre" label="Nombre*" outlined
-                            :error="nuevoUsuarioErrores.nombre"></v-text-field>
+                            :error="nuevoUsuarioErrores.nombre" @input="toUpper"></v-text-field>
                         <v-text-field v-model="nuevoUsuario.email" label="Correo Electrónico*" outlined
                             :error="nuevoUsuarioErrores.email"></v-text-field>
                         <v-switch v-model="nuevoUsuario.esAdmin" label="Administrador"></v-switch>
@@ -118,6 +118,9 @@ export default {
             });
     },
     methods: {
+        toUpper() {
+            this.nuevoUsuario.nombre = this.nuevoUsuario.nombre.toUpperCase();
+        },
         cancelarEliminacion() {
             this.mostrarConfirmacionEliminar = false;
             this.usuarioAEliminar = null;

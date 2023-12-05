@@ -1,97 +1,98 @@
 <template>
-  <v-container fluid>
-    <v-row>
-      <v-col cols="12">
-        <v-card-title>
-          <h3 class="mb-0">VALE ÚNICO DE RESGUARDO DE BIENES MUEBLES</h3>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-text-field label="UNIDAD RESPONSABLE" v-model="unidadResponsable" @input="toUpper"
-                maxlength="31"></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-menu :close-on-content-click="true" :nudge-right="40" transition="scale-transition" offset-y
-                min-width="290px">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field label="FECHA" readonly v-bind="attrs" v-on="on" v-model="fecha"></v-text-field>
-                </template>
-                <v-date-picker v-model="fecha" @input="menu = false" style="height: 470px;"></v-date-picker>
-              </v-menu>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-text-field label="ÁREA" v-model="area" @input="toUpper" maxlength="26"></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-text-field label="CENTRO DE TRABAJO" v-model="centroTrabajo" @input="toUpper"
-                maxlength="18"></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <h5 class="mb-0">DATOS DEL SERVIDOR PÚBLICO</h5>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-text-field label="NOMBRE" v-model="nombre" @input="toUpper" maxlength="40"></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-text-field label="CURP" v-model="curp" @input="toUpper" maxlength="18"></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="3">
-              <v-menu :close-on-content-click="true" :nudge-right="40" transition="scale-transition" offset-y
-                min-width="290px">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field label="FECHA ELABORACIÓN" readonly v-bind="attrs" v-on="on"
-                    v-model="fechaElaboracion"></v-text-field>
-                </template>
-                <v-date-picker v-model="fechaElaboracion" @input="menu = false" style="height: 470px;"></v-date-picker>
-              </v-menu>
-            </v-col>
+  <div class="entrar">
+    <div class="container mt-2">
+      <h1 class="text-center">Vale único de resguardo de bienes muebles</h1>
+      <v-row>
+        <v-col cols="12">
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-text-field label="UNIDAD RESPONSABLE" v-model="unidadResponsable" @input="toUpper"
+                  maxlength="31"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-menu :close-on-content-click="true" :nudge-right="40" transition="scale-transition" offset-y
+                  min-width="290px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field label="FECHA" readonly v-bind="attrs" v-on="on" v-model="fecha"></v-text-field>
+                  </template>
+                  <v-date-picker v-model="fecha" @input="menu = false" style="height: 470px;"></v-date-picker>
+                </v-menu>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-text-field label="ÁREA" v-model="area" @input="toUpper" maxlength="26"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-text-field label="CENTRO DE TRABAJO" v-model="centroTrabajo" @input="toUpper"
+                  maxlength="18"></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <h5 class="mb-0">DATOS DEL SERVIDOR PÚBLICO</h5>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-text-field label="NOMBRE" v-model="nombre" @input="toUpper" maxlength="40"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-text-field label="CURP" v-model="curp" @input="toUpper" maxlength="18"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="3">
+                <v-menu :close-on-content-click="true" :nudge-right="40" transition="scale-transition" offset-y
+                  min-width="290px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field label="FECHA ELABORACIÓN" readonly v-bind="attrs" v-on="on"
+                      v-model="fechaElaboracion"></v-text-field>
+                  </template>
+                  <v-date-picker v-model="fechaElaboracion" @input="menu = false" style="height: 470px;"></v-date-picker>
+                </v-menu>
+              </v-col>
 
-            <v-col cols="4">
-              <v-list>
-                <v-list-item v-for="(item, index) in activosSeleccionados" :key="index">
-                  <v-list-item-content>
-                    <v-chip class="custom-chip custom-v-chip" color="#9575cd">
-                      {{ item.Nombre }}
-                      <v-btn icon @click="quitarActivo(index)" class="ml-auto">
-                        <v-icon>mdi-close</v-icon>
-                      </v-btn>
-                    </v-chip>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field v-model="search" label="Buscar activo" append-icon="mdi-magnify" class="mb-3"></v-text-field>
-              <v-data-table :items="filteredActivos" :headers="headers" class="elevation-1">
-                <template v-slot:item="{ item }">
-                  <tr>
-                    <td>{{ item.aID }}</td>
-                    <td>{{ item.NoInventario }}</td>
-                    <td>{{ item.Nombre }}</td>
-                    <td>{{ item.Marca }}</td>
-                    <td>{{ item.Modelo }}</td>
-                    <td>{{ item.Serie }}</td>
-                    <td>{{ item.NombreDepartamento }}</td>
-                    <td>
-                      <v-btn icon @click="agregarActivo(item)">
-                        <v-icon>mdi-plus</v-icon>
-                      </v-btn>
-                    </td>
-                  </tr>
-                </template>
-              </v-data-table>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-btn color="primary" @click="validarCampos">Imprimir</v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-col>
-    </v-row>
-  </v-container>
+              <v-col cols="4">
+                <v-list>
+                  <v-list-item v-for="(item, index) in activosSeleccionados" :key="index">
+                    <v-list-item-content>
+                      <v-chip class="custom-chip custom-v-chip" color="#9575cd">
+                        {{ item.Nombre }}
+                        <v-btn icon @click="quitarActivo(index)" class="ml-auto">
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                      </v-chip>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field v-model="search" label="Buscar activo" append-icon="mdi-magnify"
+                  class="mb-3"></v-text-field>
+                <v-data-table :items="filteredActivos" :headers="headers" class="elevation-1">
+                  <template v-slot:item="{ item }">
+                    <tr>
+                      <td>{{ item.aID }}</td>
+                      <td>{{ item.NoInventario }}</td>
+                      <td>{{ item.Nombre }}</td>
+                      <td>{{ item.Marca }}</td>
+                      <td>{{ item.Modelo }}</td>
+                      <td>{{ item.Serie }}</td>
+                      <td>{{ item.NombreDepartamento }}</td>
+                      <td>
+                        <v-btn icon @click="agregarActivo(item)">
+                          <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                      </td>
+                    </tr>
+                  </template>
+                </v-data-table>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <v-btn color="primary" @click="validarCampos">Imprimir</v-btn>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-col>
+      </v-row>
+    </div>
+  </div>
 </template>
 <script>
 import jsPDF from "jspdf";
@@ -110,7 +111,7 @@ export default {
       unidadResponsable: "INSTITUTO TECNOLÓGICO DE CULIACÁN",
       fecha: "",
       area: "",
-      centroTrabajo: "",
+      centroTrabajo: "25DIT00021",
       datosServidorPublico: "",
       activosSeleccionados: [],
       search: '',
@@ -350,7 +351,6 @@ export default {
     axios.get('http://localhost:3000/api/vales/inventory')
       .then(response => {
         this.activos = response.data;
-        console.log(responser.data);
       })
       .catch(error => {
         console.error('Error al cargar el inventario', error);
@@ -372,5 +372,19 @@ export default {
 /* Alinea el botón al final del chip */
 .v-btn.ml-auto {
   margin-left: auto;
+}
+
+.entrar {
+    animation: entrada 0.7s ease;
+}
+
+@keyframes entrada {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 100%;
+    }
 }
 </style>

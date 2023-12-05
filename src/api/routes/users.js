@@ -98,5 +98,36 @@ module.exports = (config, sql) => {
         }
     });
 
+    router.get('/api/users/validaTipo/:UsrCorreo', async (req, res) => {
+        const {
+            UsrCorreo
+        } = req.params;
+
+        try {
+            const pool = await sql.connect(config);
+            const result = await pool
+                .request()
+                .input('UsrCorreo', sql.VarChar, UsrCorreo)
+                .query(`
+                  SELECT 
+                      UsrTipo
+                  FROM usuarios
+                  WHERE UsrCorreo = @UsrCorreo;
+                `);
+
+                console.log(result.recordset);
+
+            if (result.recordset.length === 0) {
+                res.status(404).json({
+                    message: 'Usuario no encontrado'
+                });
+            } else {
+                res.json(result.recordset);
+            }
+        } catch (error) {
+            console.error(error);
+            res.status(500).send(`Error en el servidor: ${error.message}`);
+        }
+    });
     return router;
 };

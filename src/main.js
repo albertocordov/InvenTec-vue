@@ -5,6 +5,7 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import 'animate.css';
 
+
 import { initializeApp } from "firebase/app";
 import 'firebase/auth'; 
 import 'firebase/firestore';
